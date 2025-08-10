@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { PageProps } from '@inertiajs/core';
+import { Loader2 } from 'lucide-react';
 
 type Question = {
     id: number;
@@ -13,6 +14,55 @@ interface Props extends PageProps {
 
 function stripPunctuation(text: string) {
     return text.replace(/[.,!?;:]/g, '');
+}
+
+const pronouns = ['je', 'tu', 'il', 'elle', 'on', 'nous', 'vous', 'ils', 'elles'];
+const contractionsMap: Record<string, string> = {
+    "j'": 'je',
+    "l'": 'le',
+    "m'": 'me',
+    "t'": 'te',
+    "s'": 'se',
+    "d'": 'de',
+    "c'": 'ce',
+    "n'": 'ne',
+    "qu'": 'que',
+    "jusqu'": 'jusque',
+    "lorsqu'": 'lorsque',
+    "puisqu'": 'puisque',
+};
+
+function normalizePhrase(text: string): string {
+    // Lowercase
+    let lower = text.toLowerCase();
+
+    // Remove punctuation except hyphen and apostrophe (we need them for contractions and inversion)
+    lower = lower.replace(/[.,!?;:]/g, '');
+
+    // Expand contractions (e.g. j'aime -> je aime)
+    Object.entries(contractionsMap).forEach(([contracted, expanded]) => {
+        // Replace contracted form at start of word
+        const re = new RegExp(`\\b${contracted}`, 'g');
+        lower = lower.replace(re, expanded + ' ');
+    });
+
+    // Handle inverted verb-subject pairs with hyphens (e.g., "aimes-tu" -> "tu aimes")
+    // We'll look for pattern: word1-word2 where word2 is pronoun, swap order and remove hyphen
+    const words = lower.split(/\s+/);
+    const normalizedWords: string[] = [];
+    words.forEach(word => {
+        const parts = word.split('-');
+        if (parts.length === 2 && pronouns.includes(parts[1])) {
+            // Swap order
+            normalizedWords.push(parts[1]);
+            normalizedWords.push(parts[0]);
+        } else {
+            normalizedWords.push(word);
+        }
+    });
+
+    // Join and normalize spaces
+    return normalizedWords.join(' ').trim();
 }
 
 export default function Flashcards({ questions }: Props) {
@@ -38,12 +88,15 @@ export default function Flashcards({ questions }: Props) {
 
     const currentQuestion = questions[currentIndex];
 
+    const autoNextTimeout = useRef<number | null>(null);
+    const [isAutoAdvancing, setIsAutoAdvancing] = useState(false);
+
     const checkAnswer = () => {
         const correctPhraseRaw = currentQuestion.french.trim();
         const userAnswerRaw = answer.trim();
 
-        const correctPhrase = stripPunctuation(correctPhraseRaw).toLowerCase();
-        const userAnswer = stripPunctuation(userAnswerRaw).toLowerCase();
+        const correctPhrase = normalizePhrase(correctPhraseRaw);
+        const userAnswer = normalizePhrase(userAnswerRaw);
 
         const correctWords = correctPhrase.split(/\s+/);
         const userWords = userAnswer.split(/\s+/);
@@ -77,15 +130,37 @@ export default function Flashcards({ questions }: Props) {
 
         if (isExact) {
             setScore(prev => prev + 1);
+
+            if (autoNextTimeout.current) {
+            window.clearTimeout(autoNextTimeout.current);
+            }
+            setIsAutoAdvancing(true);
+            autoNextTimeout.current = window.setTimeout(() => {
+            setIsAutoAdvancing(false);
+            nextQuestion();
+            }, 1000);
         }
     };
 
     const nextQuestion = () => {
+        if (autoNextTimeout.current) {
+            window.clearTimeout(autoNextTimeout.current);
+        }
+        setIsAutoAdvancing(false);
         setFeedback(null);
         setAnswer('');
         setHasTypedSinceFeedback(false);
         setCurrentIndex(prev => (prev + 1) % questions.length);
     };
+
+
+    useEffect(() => {
+   return () => {
+     if (autoNextTimeout.current) {
+       window.clearTimeout(autoNextTimeout.current);
+     }
+   };
+ }, []);
 
     const retryQuestion = () => {
         setFeedback(null);
@@ -237,9 +312,18 @@ export default function Flashcards({ questions }: Props) {
         <h1 className="text-4xl font-extrabold mb-6 text-blue-900 drop-shadow-sm">
           French Flashcards
         </h1>
+
+        {/* Status message */}
+        {feedback && (
+          <div className="mb-6 text-gray-800 font-semibold text-base text-center transition-all duration-200 min-h-[1.5em]">
+            {statusMsg}
+          </div>
+        )}
+
         <p className="text-lg mb-6 text-gray-800">
-          <strong>English:</strong> {currentQuestion.english}
+          <strong>Phrase:</strong> {currentQuestion.english}
         </p>
+
 
         <input
           type="text"
@@ -263,43 +347,7 @@ export default function Flashcards({ questions }: Props) {
           readOnly={feedback?.isExact === true}
         />
 
-        <div className="flex space-x-4 mt-6">
-          {!feedback && (
-            <button
-              onClick={checkAnswer}
-              className="flex-1 py-3 bg-blue-800 hover:bg-blue-900 text-white font-semibold rounded-md shadow-md transition"
-            >
-              Check
-            </button>
-          )}
-          {feedback && feedback.accuracy < 80 ? (
-            <button
-              onClick={retryQuestion}
-              disabled={!hasTypedSinceFeedback || answer.trim() === ''}
-              className={`flex-1 py-3 font-semibold rounded-md shadow-md transition ${
-                !hasTypedSinceFeedback || answer.trim() === ''
-                  ? 'bg-blue-700 text-white opacity-50 cursor-not-allowed'
-                  : 'bg-blue-700 hover:bg-blue-800 text-white'
-              }`}
-            >
-              Retry
-            </button>
-          ) : feedback ? (
-            <button
-              onClick={nextQuestion}
-              className="flex-1 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-md shadow-md transition"
-            >
-              Next
-            </button>
-          ) : null}
-        </div>
 
-        {/* Status message */}
-        {feedback && (
-          <div className="mt-4 text-gray-800 font-semibold text-base text-center transition-all duration-200 min-h-[1.5em]">
-            {statusMsg}
-          </div>
-        )}
 
         {feedback && (
           <div
@@ -327,8 +375,45 @@ export default function Flashcards({ questions }: Props) {
           </div>
         )}
 
-        <div className="mt-6 text-gray-800 font-semibold text-lg drop-shadow-sm">
+        {feedback && (
+
+            <div className="mt-6 text-gray-800 font-semibold text-lg drop-shadow-sm">
           Score: {score} / {questions.length}
+        </div>
+        )}
+
+         <div className="flex space-x-4 mt-6">
+          {!feedback && (
+            <button
+              onClick={checkAnswer}
+              className="flex-1 py-3 bg-blue-800 hover:bg-blue-900 text-white font-semibold rounded-md shadow-md transition"
+            >
+              Check
+            </button>
+          )}
+          {feedback && feedback.accuracy < 80 ? (
+            <button
+              onClick={retryQuestion}
+              disabled={!hasTypedSinceFeedback || answer.trim() === ''}
+              className={`flex-1 py-3 font-semibold rounded-md shadow-md transition ${
+                !hasTypedSinceFeedback || answer.trim() === ''
+                  ? 'bg-blue-700 text-white opacity-50 cursor-not-allowed'
+                  : 'bg-blue-700 hover:bg-blue-800 text-white'
+              }`}
+            >
+              Retry
+            </button>
+          ) : feedback ? (
+            <button
+                onClick={nextQuestion}
+                className="flex-1 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold rounded-md shadow-md transition flex justify-center items-center space-x-2"
+                >
+                <span>Next</span>
+                {isAutoAdvancing && (
+                    <Loader2 className="animate-spin"/>
+                )}
+                </button>
+          ) : null}
         </div>
 
         {/* Tooltip popup for word hints and practice list */}
