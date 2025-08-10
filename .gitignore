@@ -1,4 +1,3 @@
-.DS_Store
 /.phpunit.cache
 /bootstrap/ssr
 /node_modules
