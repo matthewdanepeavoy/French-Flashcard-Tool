@@ -282,6 +282,9 @@ export default function Flashcards({ questions }: Props) {
       >
         ← Back to Admin Panel
       </a>
+
+      <a href="/phrases">Add phrases</a>
+
       <div className="">
         <span className="font-semibold mr-2">Practice List:</span>
         {Array.from(practiceList).length === 0 && (
