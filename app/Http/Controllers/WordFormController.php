@@ -12,7 +12,7 @@ class WordFormController extends Controller
     public function show() {
 
         return Inertia::render('PhraseAddEdit', [
-            // 'questions' => $questions
+            'existingWords' => session('existingWords', []),
         ]);
     }
 
@@ -27,14 +27,11 @@ class WordFormController extends Controller
             'french' => $validated['french'],
             'english' => $validated['english'],
         ]);
-        // dd($phrase);
-
-        // Return Inertia response with the new phrase data
-        // return back();
 
         return Inertia::render('PhraseAddEdit', [
             'phrase' => $phrase,
             'someData' => [],
+
         ]);
     }
 
@@ -58,9 +55,7 @@ class WordFormController extends Controller
             $response[$w] = in_array($w, $existingWords);
         }
 
-        return Inertia::render('PhraseAddEdit', [
-            'existingWords' => $response
-        ]);
+        return redirect()->back()->with('existingWords', $response);
     }
 
      // Store new words and link to phrase
@@ -69,13 +64,35 @@ class WordFormController extends Controller
         $validated = $request->validate([
             'phrase_id' => 'required|exists:phrases,id',
             'words' => 'required|array',
-            'words.*.word' => 'required|string|max:100',
-            'words.*.type' => 'required|string|in:Verb,Noun,Adjective,Adverb',
-            'words.*.hints' => 'nullable|string|max:500',
-            'words.*.infinitive' => 'nullable|string|max:100',
-            'words.*.conjugations' => 'nullable|array',
-            'words.*.conjugations.*' => 'string|max:100',
+            // 'words.*.word' => 'required|string|max:100',
+            // 'words.*.type' => 'required|string|in:Verb,Noun,Adjective,Adverb',
+            // 'words.*.hints' => 'nullable|string|max:500',
+            // 'words.*.infinitive' => 'nullable|string|max:100',
+            // 'words.*.conjugations' => 'nullable|array',
+            // 'words.*.conjugations.*' => 'string|max:100',
         ]);
+
+
+
+
+
+        // EVEN IF WORD ALREADY EXISTS, WE WANT TO ASSOCIATE THIS PHRASE TO IT.
+
+
+
+
+        // IF VERB
+            // Word == infinitive version
+            // Conjugations
+                // Query based on all conjugations
+
+            // Need to support definition in addition to "hints" on usage.
+
+            // Either way, associate phrase to word
+
+            // Then connect each definition & hint to each word.
+            // Along with the conjugations
+
 
         $phrase = Phrase::findOrFail($validated['phrase_id']);
 
@@ -83,16 +100,12 @@ class WordFormController extends Controller
             // Create or update the word
             $word = Word::updateOrCreate(
 
-                // IF INFINITIVE EXISTS, MAKE THIS THE BASE WORD.
-                // TYPE CAN BE FIXED EXPRESSION
-                // VARIATIONS?
-
                 ['word' => $wordData['word']],
                 [
                     'type' => $wordData['type'],
                     'hints' => $wordData['hints'] ?? null,
                     // 'infinitive' => $wordData['infinitive'] ?? null,
-                    'conjugations' => isset($wordData['conjugations']) ? json_encode($wordData['conjugations']) : null,
+                    'conjugations' => isset($wordData['conjugations']) ? $wordData['conjugations'] : null,
                 ]
             );
 
@@ -102,6 +115,10 @@ class WordFormController extends Controller
             }
         }
 
-        return response()->json(['message' => 'Words saved and linked successfully.']);
+        dd($phrase->with('words')->get());
+
+        dd($request->all());
+
+        // return response()->json(['message' => 'Words saved and linked successfully.']);
     }
 }

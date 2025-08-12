@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('word');
             $table->string('type')->nullable();
-            // $table->string('infinitive')->nullable();
+            $table->string('definition')->nullable();
+            $table->string('level')->default('A1');
             $table->string('hints')->nullable();
             $table->json('conjugations')->nullable();
             $table->timestamps();
