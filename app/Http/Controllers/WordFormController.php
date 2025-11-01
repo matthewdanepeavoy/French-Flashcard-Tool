@@ -18,6 +18,11 @@ class WordFormController extends Controller
 
     public function store(Request $request)
     {
+
+        // @todo: This needs to store a phrase if it doesn't already exist.
+        // @todo: This needs to store the level of the phrase. Ex. A1.
+
+
         $validated = $request->validate([
             'french' => 'required|string|max:255',
             'english' => 'required|string|max:255',
@@ -31,7 +36,6 @@ class WordFormController extends Controller
         return Inertia::render('PhraseAddEdit', [
             'phrase' => $phrase,
             'someData' => [],
-
         ]);
     }
 
@@ -44,6 +48,12 @@ class WordFormController extends Controller
         ]);
 
         $words = $request->input('words');
+
+
+
+        // @todo: Check existence of verbs. The tenses may be different.
+        // If not matching originally, check with conjugations, ex. je suis, j'aime, tu aimes
+
 
         $existingWords = Word::whereIn('word', $words)
             ->pluck('word')
@@ -61,42 +71,26 @@ class WordFormController extends Controller
      // Store new words and link to phrase
     public function storeWords(Request $request)
     {
-        $validated = $request->validate([
-            'phrase_id' => 'required|exists:phrases,id',
-            'words' => 'required|array',
+        // $validated = $request->validate([
+            // 'phrase_id' => 'required|exists:phrases,id',
+            // 'words' => 'required|array',
             // 'words.*.word' => 'required|string|max:100',
             // 'words.*.type' => 'required|string|in:Verb,Noun,Adjective,Adverb',
             // 'words.*.hints' => 'nullable|string|max:500',
             // 'words.*.infinitive' => 'nullable|string|max:100',
             // 'words.*.conjugations' => 'nullable|array',
             // 'words.*.conjugations.*' => 'string|max:100',
-        ]);
+        // ]);
 
+        // @todo: IMPT: EVEN IF WORD ALREADY EXISTS, WE WANT TO ASSOCIATE THIS PHRASE TO IT.
 
+        // @todo: IF VERB
+            // Need to track infinitive and all conjugations
+            // Query based on all conjugations, and intelligently determine if I used the verb wrong.
 
+        $phrase = Phrase::findOrFail($request->phrase_id);
 
-
-        // EVEN IF WORD ALREADY EXISTS, WE WANT TO ASSOCIATE THIS PHRASE TO IT.
-
-
-
-
-        // IF VERB
-            // Word == infinitive version
-            // Conjugations
-                // Query based on all conjugations
-
-            // Need to support definition in addition to "hints" on usage.
-
-            // Either way, associate phrase to word
-
-            // Then connect each definition & hint to each word.
-            // Along with the conjugations
-
-
-        $phrase = Phrase::findOrFail($validated['phrase_id']);
-
-        foreach ($validated['words'] as $wordData) {
+        foreach ($request->words as $wordData) {
             // Create or update the word
             $word = Word::updateOrCreate(
 
@@ -104,7 +98,12 @@ class WordFormController extends Controller
                 [
                     'type' => $wordData['type'],
                     'hints' => $wordData['hints'] ?? null,
+
+                    // @todo:
                     // 'infinitive' => $wordData['infinitive'] ?? null,
+                    // infinitive and conjugations together now?
+                    // if verb, verb 'group' needs to be here.
+
                     'conjugations' => isset($wordData['conjugations']) ? $wordData['conjugations'] : null,
                 ]
             );

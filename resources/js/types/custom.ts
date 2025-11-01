@@ -5,6 +5,7 @@ export interface WordForm {
     exists: boolean;
     type: WordType;
     hints: string;
+    group: number;
     infinitive?: string;
     conjugations: string[];
 }

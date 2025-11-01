@@ -19,14 +19,25 @@ export default function WordFields({word, i, setWords}) {
         });
     };
 
-    // Add conjugation input for a verb word
-    const addConjugation = (index: number) => {
-        setWords((prev) => {
-        const copy = [...prev];
-        copy[index].conjugations.push('');
-        return copy;
+    function updateVerbGroup(wordIndex, group) {
+        setWords(words => {
+            const updated = [...words];
+            updated[wordIndex].group = group;
+            console.log(updated, wordIndex);
+
+            return updated;
         });
-    };
+    }
+
+    const conjugationLabels = [
+        "infinitive",
+        "je / j'",
+        "tu",
+        "il / elle / on",
+        "nous",
+        "vous",
+        "ils / elles"
+    ];
 
     // Update conjugation text
     const updateConjugation = (wordIndex: number, conjIndex: number, value: string) => {
@@ -97,49 +108,45 @@ export default function WordFields({word, i, setWords}) {
                     placeholder="Optional hints or usage notes"
                 />
 
+
                 {word.type === 'Verb' && (
                     <>
-                    <label className="block mb-1 font-semibold text-gray-700">
-                        Infinitive form
-                    </label>
-                    <input
-                        type="text"
-                        value={word.infinitive || ''}
-                        onChange={e => updateWordField(i, 'infinitive', e.target.value)}
-                        className="w-full mb-3 rounded-md border border-blue-400 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        placeholder="e.g., parler"
-                        required
-                    />
+                    {/** Verb Group Selector */}
+                    <div className="mb-4">
+                        <label className="block font-semibold mb-1 text-gray-700">
+                            Verb Group
+                        </label>
+                        <select
+                            value={word.group || ""}
+                            onChange={e => updateVerbGroup(i, e.target.value)}
+                            className="w-full rounded-md border border-blue-400 p-2
+                                    focus:outline-none focus:ring-2 focus:ring-blue-400 bg-white"
+                            required
+                        >
+                            <option value="" disabled>Select group</option>
+                            <option value="1">1st Group — ER verbs (parler, aimer)</option>
+                            <option value="2">2nd Group — IR verbs (finir, choisir)</option>
+                            <option value="3">3rd Group — Irregular verbs (être, avoir, aller, prendre)</option>
+                        </select>
+                    </div>
 
                     <label className="block mb-1 font-semibold text-gray-700">
                         Conjugations
                     </label>
-                    {word.conjugations.map((conj, idx) => (
-                        <div key={idx} className="flex space-x-2 mb-2">
+                    {conjugationLabels.map((label, idx) => (
+                    <div key={idx} className="flex items-center space-x-2 mb-2">
+                        <span className="w-28 text-right font-semibold text-gray-700">{label}</span>
+
                         <input
                             type="text"
-                            value={conj}
+                            value={word.conjugations[idx] ?? ""}
                             onChange={e => updateConjugation(i, idx, e.target.value)}
-                            className="flex-grow rounded-md border border-blue-400 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                            placeholder="e.g., parle, parles, parlons"
+                            className="flex-grow rounded-md border border-blue-400 p-2
+                                        focus:outline-none focus:ring-2 focus:ring-blue-400"
                             required
                         />
-                        <button
-                            type="button"
-                            onClick={() => removeConjugation(i, idx)}
-                            className="px-3 bg-red-600 text-white rounded hover:bg-red-700"
-                        >
-                            &times;
-                        </button>
-                        </div>
+                    </div>
                     ))}
-                    <button
-                        type="button"
-                        onClick={() => addConjugation(i)}
-                        className="mt-1 inline-block bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded"
-                    >
-                        + Add conjugation
-                    </button>
                     </>
                 )}
                 </>

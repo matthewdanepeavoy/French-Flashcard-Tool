@@ -35,6 +35,7 @@ import MainContent from './MainContent';
             word: w.word,
             type: w.type,
             hints: w.hints,
+            group: w.group,
             infinitive: w.type === 'Verb' ? w.infinitive : undefined,
             conjugations: w.type === 'Verb' ? w.conjugations.filter(c => c.trim() !== '') : [],
         }));
