@@ -7,4 +7,5 @@ enum WordType: string
     case Pronoun = 'pronoun';
     case Adjective = 'adjective';
     case Adverb = 'adverb';
+    case Article = 'article';
 }

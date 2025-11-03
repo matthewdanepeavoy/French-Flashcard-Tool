@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import Tooltip from "./Tooltip";
 
 export default function AnswerBox({feedback, practiceList, setPracticeList}) {
+    const [tooltipWord, setTooltipWord] = useState(false);
 
     return(
         <div
@@ -16,15 +17,14 @@ export default function AnswerBox({feedback, practiceList, setPracticeList}) {
             </p>
             <div className="text-xl">
                 {feedback.wordResults.map((word: any, i: number) => (
-                    <WordAnswer key={i} word={word} practiceList={practiceList} setPracticeList={setPracticeList} />
+                    <WordAnswer key={i} word={word} tooltipWord={tooltipWord} setTooltipWord={setTooltipWord} practiceList={practiceList} setPracticeList={setPracticeList} />
                 ))}
             </div>
         </div>
     );
 }
 
-function WordAnswer({word, practiceList, setPracticeList}) {
-    const [tooltipWord, setTooltipWord] = useState<string | null>(null);
+function WordAnswer({word, tooltipWord, setTooltipWord, practiceList, setPracticeList}) {
 
     const getWordStyle = (wordObj: any) => {
         if (wordObj.correct) {
@@ -53,10 +53,10 @@ function WordAnswer({word, practiceList, setPracticeList}) {
         e: React.MouseEvent<HTMLSpanElement>,
         wordObj: any
     ) => {
-        if (!wordObj.correct && wordObj.expected) {
-            // Toggle tooltip for this word
-            setTooltipWord(prev => prev === wordObj.expected ? null : wordObj.expected);
-        }
+        setTooltipWord((prev) => {
+            if (prev == wordObj.expected) return false;
+            return wordObj.expected
+        });
     };
 
     return(

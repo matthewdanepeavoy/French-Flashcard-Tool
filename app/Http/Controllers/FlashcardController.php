@@ -10,7 +10,7 @@ class FlashcardController extends Controller
 {
     public function index()
     {
-        $questions = Phrase::limit(50)->get();
+        $questions = Phrase::with('words')->limit(50)->get();
 
         return Inertia::render('Flashcards', [
             'questions' => $questions

@@ -75,8 +75,10 @@ function normalizePhrase(text: string): string {
         }
     });
 
-    // Join and normalize spaces
-    return normalizedWords.join(' ').trim();
+    const joined = normalizedWords.join(' ').trim();
+
+    return joined;
+    // return joined.replace('_', ' ');
 }
 
 export default function Flashcards({ questions }: Props) {
@@ -85,7 +87,7 @@ export default function Flashcards({ questions }: Props) {
     const [feedback, setFeedback] = useState<any>(null);
     const [score, setScore] = useState(0);
     const [attempts, setAttempts] = useState<Record<number, { tries: number; correct: boolean }>>({});
-    // Instead of global tooltip, track only the word for which tooltip is open
+
     const [practiceList, setPracticeList] = useState<Set<string>>(new Set());
 
     const [hasTypedSinceFeedback, setHasTypedSinceFeedback] = useState(false);
@@ -108,19 +110,30 @@ export default function Flashcards({ questions }: Props) {
         let correctCount = 0;
         const usedIndices = new Set<number>();
         const wordResults = correctWords.map((word) => {
+            const wordData = currentQuestion.words.filter((data) => {
+                if (word == data.word) return true;
+                if (word == data.word + 's') return true;
+                if (word == data.word + 'x') return true;
+                if (word == data.feminine_form) return true;
+                if (word == data.feminine_form + 's') return true;
+
+                if (data.conjugations && data.conjugations.includes(word)) return true;
+            });
+
             // Find an unmatched user word that matches this expected word
             const userWordIndex = userWords.findIndex((uw, idx) => uw === word && !usedIndices.has(idx));
             if (userWordIndex !== -1) {
                 usedIndices.add(userWordIndex);
                 correctCount++;
-                return { word: word, correct: true };
+                return { word: word, data: (wordData.length > 0) ? wordData[0] : null, correct: true };
             } else {
-                return { word: word, correct: false, expected: word };
+                return { word: word, data: (wordData.length > 0) ? wordData[0] : null, correct: false, expected: word };
             }
         });
 
         const accuracy = Math.round((correctCount / correctWords.length) * 100);
         const isExact = userAnswer === correctPhrase;
+
 
         setFeedback({ isExact, accuracy, wordResults });
 

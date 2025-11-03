@@ -115,6 +115,7 @@ export default function WordFields({word, i, setWords}) {
                     <option value="">Select type</option>
                     <option value="noun">Noun</option>
                     <option value="pronoun">Pronoun</option>
+                    <option value="article">Prepositional / Article</option>
                     <option value="adjective">Adjective</option>
                     <option value="verb">Verb</option>
                     <option value="adverb">Adverb</option>

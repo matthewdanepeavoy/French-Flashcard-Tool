@@ -1,4 +1,4 @@
-export type WordType = 'verb' | 'noun' | 'adjective' | 'adverb' | '';
+export type WordType = 'verb' | 'noun' | 'pronoun' | 'article' | 'adjective' | 'adverb' | '';
 
 export interface WordForm {
     word: string;

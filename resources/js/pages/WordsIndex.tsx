@@ -31,7 +31,7 @@ export default function WordsIndex({ words }) {
         <PageWrapper practiceList={practiceList} setPracticeList={setPracticeList}>
             <div className="flex items-center justify-center min-h-screen">
 
-                <div className="space-y-8">
+                <div className="space-y-8 px-32 py-10">
                 <h1 className="text-4xl font-extrabold mb-6 drop-shadow-sm text-white drop-shadow-lg">
                     Word List
                 </h1>
