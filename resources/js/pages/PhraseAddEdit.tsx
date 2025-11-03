@@ -7,9 +7,10 @@ import PhraseForm from './PhraseForm';
 import MainTitle from '@/components/MainTitle';
 import MainContent from './MainContent';
 
-    export default function PhraseAddEdit() {
+export default function PhraseAddEdit() {
     const [practiceList, setPracticeList] = useState<Set<string>>(new Set());
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [message, setMessage] = useState<Set<string>>();
     const [loading, setLoading] = useState(false);
 
     // Mode 1: Phrase input
@@ -30,30 +31,41 @@ import MainContent from './MainContent';
         setSavingWords(true);
         setErrors({});
 
+
         // Filter only words that don't exist (new words to create)
-        const newWords = words.filter(w => !w.exists).map(w => ({
+        const formattedWords = words
+                // .filter(w => !w.exists)
+            .map(w => ({
             word: w.word,
+            id: w.id,
+            exists: w.exists,
             type: w.type,
+            definition: w.definition,
+            feminine_form: w.feminine_form,
+            contracted_form: w.contracted_form,
             hints: w.hints,
             group: w.group,
-            infinitive: w.type === 'Verb' ? w.infinitive : undefined,
-            conjugations: w.type === 'Verb' ? w.conjugations.filter(c => c.trim() !== '') : [],
+            infinitive: w.type === 'verb' ? w.infinitive : undefined,
+            conjugations: w.type === 'verb' ? w.conjugations.filter(c => c.trim() !== '') : [],
         }));
 
         router.post(
             '/words',
-            { phrase_id: phraseId, words: newWords },
+            { phrase_id: phraseId, words: formattedWords },
             {
                 onSuccess: (page) => {
-                  alert('hi');
-                  console.log(page);
+                    setMode('phrase');
+                    setSavingWords(false);
+                    setWords([]);
+                    setMessage('Phrase saved successfully');
+                    //   alert('hi');
+                    //   console.log(page);
 
-                setSavingWords(false);
-                alert('Words saved and linked to phrase!');
-                // Optionally reset form or redirect
+                    // alert('Words saved and linked to phrase!');
+                    // Optionally reset form or redirect
                 },
                 onError: (errors) => {
-                  console.log(errors);
+
 
                   setErrors(errors || {});
                   setSavingWords(false);
@@ -66,7 +78,7 @@ import MainContent from './MainContent';
         <PageWrapper practiceList={practiceList} setPracticeList={setPracticeList}>
             <MainContent>
                 {mode === 'phrase' && (
-                        <PhraseForm setMode={setMode} errors={errors} setErrors={setErrors} loading={loading} setLoading={setLoading} setPhraseId={setPhraseId} setWords={setWords}/>
+                        <PhraseForm setMode={setMode} errors={errors} setErrors={setErrors} message={message} loading={loading} setLoading={setLoading} setPhraseId={setPhraseId} setWords={setWords}/>
                     )}
 
                     {mode === 'words' && (

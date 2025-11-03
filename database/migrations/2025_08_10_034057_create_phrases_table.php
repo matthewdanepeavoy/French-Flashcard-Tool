@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Enums\Level;
+use App\Enums\Language;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -13,7 +15,9 @@ return new class extends Migration
     {
         Schema::create('phrases', function (Blueprint $table) {
             $table->id();
-            $table->string('french');
+            $table->string('language')->default(Language::French->value);
+            $table->string('level')->default(Level::A1->value);
+            $table->string('phrase');
             $table->string('english');
             $table->integer('correct_count')->default(0);
             $table->integer('error_count')->default(0);

@@ -2,17 +2,26 @@ import Badge from "@/components/Badge";
 import MainTitle from "@/components/MainTitle";
 import { WordForm, WordType } from "@/types/custom";
 import { router } from "@inertiajs/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function PhraseForm({setMode, errors, setErrors, loading, setLoading, setPhraseId, setWords}) {
-    const [french, setFrench] = useState('');
+export default function PhraseForm({setMode, errors, setErrors, message, loading, setLoading, setPhraseId, setWords}) {
+    const [phrase, setTargetPhrase] = useState('');
     const [english, setEnglish] = useState('');
+
+    const inputRef = useRef(null);
+
+    useEffect(() => {
+        if (inputRef.current) {
+            inputRef.current.focus();
+        }
+    }, []); // Empty dependency array means this runs once after initial render
+
 
     // Handle Mode 1 submit: create phrase
     const handlePhraseSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setErrors({});
-        if (!french.trim() || !english.trim()) {
+        if (!phrase.trim() || !english.trim()) {
             setErrors({ form: 'Both French and English phrases are required.' });
             return;
         }
@@ -21,7 +30,7 @@ export default function PhraseForm({setMode, errors, setErrors, loading, setLoad
 
         router.post(
             '/phrases',
-            { french: french.trim(), english: english.trim() },
+            { phrase: phrase.trim(), english: english.trim() },
             {
                 preserveState: true,
                 preserveScroll: true,
@@ -29,12 +38,12 @@ export default function PhraseForm({setMode, errors, setErrors, loading, setLoad
 
                 // Assuming response includes phrase id and french phrase
                 const newPhraseId = page.props?.phrase?.id;
-                const newFrench = page.props?.phrase?.french || french.trim();
+                const newPhrase = page.props?.phrase?.phrase || phrase.trim();
 
                 setPhraseId(newPhraseId || null);
                 setLoading(false);
                 if (newPhraseId) {
-                    prepareWords(newFrench);
+                    prepareWords(newPhrase);
                     setMode('words');
                 }
                 },
@@ -48,35 +57,47 @@ export default function PhraseForm({setMode, errors, setErrors, loading, setLoad
 
 
     // Prepare word forms for Mode 2
-    const prepareWords = (phraseFrench: string) => {
-        const splitWords = phraseFrench
-        .trim()
-        .split(/\s+/)
-        .map(w => w.toLowerCase());
+    const prepareWords = (targetPhrase: string) => {
+        const splitWords = targetPhrase
+            .trim()
+            .split(/\s+/)
+            .map(w => w.toLowerCase());
+
+        const words = splitWords.map((word) => {
+            if (word.includes("j'")) {
+                word = word.replace("j'", '');
+            }
+
+            return word;
+
+        });
 
         // Call backend API to check existence
         setLoading(true);
         router.post(
         '/words/check-existence',
-        { words: splitWords },
+        { words: words },
         {
             preserveState: true,
             preserveScroll: true,
             onSuccess: (page) => {
                 const existingWords: Record<string, boolean> = page.props?.existingWords || {};
                 // Build word forms list
-                const wordForms: WordForm[] = splitWords.map(w => ({
+
+                const wordForms: WordForm[] = words.map(w => ({
                     word: w,
-                    exists: !!existingWords[w],
+                    id: (!! existingWords[w]) ? existingWords[w]?.id : null,
+                    exists: !! existingWords[w],
                     type: '' as WordType,
                     hints: '',
                     conjugations: [],
                 }));
+
                 setWords(wordForms);
                 setLoading(false);
                 },
                 onError: () => {
-                setWords(splitWords.map(w => ({
+                setWords(words.map(w => ({
                     word: w,
                     exists: false,
                     type: '',
@@ -88,8 +109,6 @@ export default function PhraseForm({setMode, errors, setErrors, loading, setLoad
         });
     };
 
-
-
     return(
         <form onSubmit={handlePhraseSubmit} className="space-y-6">
             <Badge text={'Level A1'}/>
@@ -98,15 +117,19 @@ export default function PhraseForm({setMode, errors, setErrors, loading, setLoad
             {errors.form && (
                 <p className="text-red-600 font-semibold">{errors.form}</p>
             )}
+            {message && (
+                <p className="text-green-600 font-semibold">{message}</p>
+            )}
 
             <div>
             <label className="block mb-1 font-semibold text-gray-700">French Phrase</label>
             <input
                 type="text"
-                value={french}
-                onChange={e => setFrench(e.target.value)}
+                value={phrase}
+                onChange={e => setTargetPhrase(e.target.value)}
                 className="w-full rounded-md border border-blue-400 p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 required
+                ref={inputRef}
             />
             </div>
 

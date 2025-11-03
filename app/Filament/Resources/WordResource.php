@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use Filament\Forms;
 use App\Models\Word;
 use Filament\Tables;
+use App\Enums\WordType;
 use Filament\Forms\Get;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -16,6 +17,7 @@ use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\WordResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use App\Filament\Resources\WordResource\RelationManagers;
+use App\Filament\Resources\WordResource\RelationManagers\PhrasesRelationManager;
 
 class WordResource extends Resource
 {
@@ -27,49 +29,62 @@ class WordResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('word')
-                    ->required(),
-                Select::make('type')
-                    ->options(function($state) {
-                        return [
-                            'Verb' => 'Verb'
-                        ];
-                    })
-                    ->live(),
-                Forms\Components\TextInput::make('hints'),
+                Section::make('details')
+                    ->columns(3)
+                    ->schema([
+                        Forms\Components\TextInput::make('word')
+                            ->label('Masculine form')
+                            ->required(),
+
+                        Forms\Components\TextInput::make('feminine_form'),
+                        Forms\Components\TextInput::make('contracted_form'),
+
+                        Select::make('type')
+                            ->options(WordType::class)
+                            ->native(false)
+                            ->preload()
+                            ->required()
+                            ->live(),
+
+                        Forms\Components\TextInput::make('definition')
+                            ->required(),
+
+                        Forms\Components\TextInput::make('hints'),
+                    ]),
+
+
 
                 Section::make('conjugations')
                     ->hidden(function(Get $get) {
-                        if ($get('type') == 'Verb') return false;
+                        if ($get('type') == 'verb') return false;
                         return true;
                     })
                     ->columns(3)
                     ->schema([
                         TextInput::make('je')
                             ->formatStateUsing(function($record) {
-                                if (isset($record->conjugations['je'])) {
-                                    return $record->conjugations['je'];
-                                }
+                                if ($record->conjugations) return $record->conjugations[0];
                             }),
                         TextInput::make('tu')
                             ->formatStateUsing(function($record) {
-                                // dd($record);
+                                if ($record->conjugations) return $record->conjugations[1];
                             }),
                         TextInput::make('il/elle')
                             ->formatStateUsing(function($record) {
-                                // dd($record);
-                            }),
-                        TextInput::make('vous')
-                            ->formatStateUsing(function($record) {
-                                // dd($record);
+                                if ($record->conjugations) return $record->conjugations[2];
                             }),
                         TextInput::make('nous')
                             ->formatStateUsing(function($record) {
-                                // dd($record);
+                                if ($record->conjugations) return $record->conjugations[3];
                             }),
+                        TextInput::make('vous')
+                            ->formatStateUsing(function($record) {
+                                if ($record->conjugations) return $record->conjugations[4];
+                            }),
+
                         TextInput::make('ils/elles')
                             ->formatStateUsing(function($record) {
-                                // dd($record);
+                                if ($record->conjugations) return $record->conjugations[5];
                             }),
                     ]),
                 // Forms\Components\Textarea::make('conjugations')
@@ -112,7 +127,7 @@ class WordResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PhrasesRelationManager::class
         ];
     }
 

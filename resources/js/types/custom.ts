@@ -1,9 +1,13 @@
-export type WordType = 'Verb' | 'Noun' | 'Adjective' | 'Adverb' | '';
+export type WordType = 'verb' | 'noun' | 'adjective' | 'adverb' | '';
 
 export interface WordForm {
     word: string;
+    id: number;
     exists: boolean;
     type: WordType;
+    definition: string;
+    feminine_form: string;
+    contracted_form: string;
     hints: string;
     group: number;
     infinitive?: string;

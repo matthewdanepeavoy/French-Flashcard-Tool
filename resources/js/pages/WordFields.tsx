@@ -8,14 +8,14 @@ export default function WordFields({word, i, setWords}) {
     // Handle input changes for words
     const updateWordField = (index: number, field: keyof WordForm, value: any) => {
         setWords((prev) => {
-        const copy = [...prev];
-        copy[index] = { ...copy[index], [field]: value };
-        // If type changed to something other than Verb, clear conjugations
-        if (field === 'type' && value !== 'Verb') {
-            copy[index].conjugations = [];
-            copy[index].infinitive = undefined;
-        }
-        return copy;
+            const words = [...prev];
+            words[index] = { ...words[index], [field]: value };
+            // If type changed to something other than Verb, clear conjugations
+            if (field === 'type' && value !== 'verb') {
+                words[index].conjugations = [];
+                words[index].infinitive = undefined;
+            }
+            return words;
         });
     };
 
@@ -61,6 +61,19 @@ export default function WordFields({word, i, setWords}) {
         return(<div>N</div>);
     }
 
+    if (word.exists) {
+        setWords((prev) => {
+            console.log(prev);
+
+            const copy = [...prev];
+            copy[i].id = word.id;
+
+            // copy[i].conjugations.splice(conjIndex, 1);
+        return prev;
+        });
+
+    }
+
     return(
         <div key={word.word} className="border border-blue-300 rounded-md p-4 mb-4 bg-white/90 relative">
             <button
@@ -82,6 +95,15 @@ export default function WordFields({word, i, setWords}) {
             {! word.exists && (
                 <>
                 <label className="block mb-1 font-semibold text-gray-700">
+                    Definition
+                </label>
+                <input
+                    value={word.definition ?? ""}
+                    onChange={e => updateWordField(i, 'definition', e.target.value as WordType)}
+                    className="w-full mb-3 rounded-md border border-blue-400 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    required
+                />
+                <label className="block mb-1 font-semibold text-gray-700">
                     Type of word
                 </label>
                 <select
@@ -91,11 +113,43 @@ export default function WordFields({word, i, setWords}) {
                     required
                 >
                     <option value="">Select type</option>
-                    <option value="Verb">Verb</option>
-                    <option value="Noun">Noun</option>
-                    <option value="Adjective">Adjective</option>
-                    <option value="Adverb">Adverb</option>
+                    <option value="noun">Noun</option>
+                    <option value="pronoun">Pronoun</option>
+                    <option value="adjective">Adjective</option>
+                    <option value="verb">Verb</option>
+                    <option value="adverb">Adverb</option>
                 </select>
+
+                <div className="flex">
+
+                    <div className="flex flex-col flex-1">
+
+                        <label className="block mb-1 font-semibold text-gray-700">
+                            Feminine form
+                        </label>
+                        <input
+                            type="text"
+                            value={word.feminine_form ?? ""}
+                            onChange={e => updateWordField(i, 'feminine_form', e.target.value as WordType)}
+                            className="flex-grow rounded-md border border-blue-400 p-2
+                                        focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
+
+                    <div className="flex flex-col flex-1 ml-4">
+                        <label className="block mb-1 font-semibold text-gray-700">
+                            Contracted form
+                        </label>
+                        <input
+                            type="text"
+                            value={word.contracted_form ?? ""}
+                            onChange={e => updateWordField(i, 'contracted_form', e.target.value as WordType)}
+                            className="flex-grow rounded-md border border-blue-400 p-2
+                                        focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                    </div>
+                </div>
+
 
                 <label className="block mb-1 font-semibold text-gray-700">
                     Hints / Usage Notes
@@ -108,8 +162,7 @@ export default function WordFields({word, i, setWords}) {
                     placeholder="Optional hints or usage notes"
                 />
 
-
-                {word.type === 'Verb' && (
+                {word.type === 'verb' && (
                     <>
                     {/** Verb Group Selector */}
                     <div className="mb-4">

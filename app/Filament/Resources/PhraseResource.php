@@ -2,16 +2,18 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PhraseResource\Pages;
-use App\Filament\Resources\PhraseResource\RelationManagers;
-use App\Models\Phrase;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Phrase;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Section;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\PhraseResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\PhraseResource\RelationManagers;
+use App\Filament\Resources\PhraseResource\RelationManagers\WordsRelationManager;
 
 class PhraseResource extends Resource
 {
@@ -23,20 +25,33 @@ class PhraseResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('french')
-                    ->required(),
-                Forms\Components\TextInput::make('english')
-                    ->required(),
-                Forms\Components\TextInput::make('correct_count')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\TextInput::make('error_count')
-                    ->required()
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\Toggle::make('mastered')
-                    ->required(),
+                Section::make('Phrase')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('phrase')
+                            ->required(),
+                        Forms\Components\TextInput::make('english')
+                            ->required(),
+                        Forms\Components\TextInput::make('language')
+                            ->required(),
+                        Forms\Components\TextInput::make('level')
+                            ->required(),
+                    ]),
+
+                Section::make('Attempts')
+                    ->columns(3)
+                    ->schema([
+                        Forms\Components\TextInput::make('correct_count')
+                            ->required()
+                            ->numeric()
+                            ->default(0),
+                        Forms\Components\TextInput::make('error_count')
+                            ->required()
+                            ->numeric()
+                            ->default(0),
+                        Forms\Components\Toggle::make('mastered')
+                            ->required(),
+                    ])
             ]);
     }
 
@@ -44,7 +59,9 @@ class PhraseResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('french')
+                Tables\Columns\TextColumn::make('language')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('phrase')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('english')
                     ->searchable(),
@@ -81,7 +98,7 @@ class PhraseResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            WordsRelationManager::class
         ];
     }
 

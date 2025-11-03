@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 class WordController extends Controller
 {
     public function index(Request $request) {
-        $words = Word::with([
-            'phrases:id,french,english',
-            // 'conjugations' // if you have a conjugations relation
+        $words = Word::
+        with([
+            'phrases:id,phrase,english',
         ])
         ->get()
         ->sortBy('word')

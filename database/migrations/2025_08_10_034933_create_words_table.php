@@ -1,8 +1,10 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
+use App\Enums\Level;
+use App\Enums\Language;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Database\Migrations\Migration;
 
 return new class extends Migration
 {
@@ -14,11 +16,14 @@ return new class extends Migration
         Schema::create('words', function (Blueprint $table) {
             $table->id();
             $table->string('word');
-            $table->string('type')->nullable();
+            $table->string('feminine_form')->nullable();
+            $table->string('type')->nullable(); // verb, noun, etc.
             $table->string('definition')->nullable();
-            $table->string('level')->default('A1');
             $table->string('hints')->nullable();
+            $table->string('contracted_form')->nullable();
+            $table->integer('verb_group')->nullable();
             $table->json('conjugations')->nullable();
+            $table->string('language')->default(Language::French->value);
             $table->timestamps();
         });
     }

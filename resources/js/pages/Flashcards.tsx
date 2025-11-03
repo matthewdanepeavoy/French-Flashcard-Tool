@@ -14,7 +14,7 @@ import MainContent from './MainContent';
 type Question = {
     id: number;
     english: string;
-    french: string;
+    phrase: string;
 };
 
 interface Props extends PageProps {
@@ -26,6 +26,11 @@ function stripPunctuation(text: string) {
 }
 
 const pronouns = ['je', 'tu', 'il', 'elle', 'on', 'nous', 'vous', 'ils', 'elles'];
+
+    // Words need a masculine & feminine forms
+    // Nouns, pronouns, adjectives, etc.
+    // We also need contraction mapping to words???
+
 const contractionsMap: Record<string, string> = {
     "j'": 'je',
     "l'": 'le',
@@ -91,7 +96,7 @@ export default function Flashcards({ questions }: Props) {
     const [isAutoAdvancing, setIsAutoAdvancing] = useState(false);
 
     const checkAnswer = () => {
-        const correctPhraseRaw = currentQuestion.french.trim();
+        const correctPhraseRaw = currentQuestion.phrase.trim();
         const userAnswerRaw = answer.trim();
 
         const correctPhrase = normalizePhrase(correctPhraseRaw);
@@ -180,6 +185,18 @@ export default function Flashcards({ questions }: Props) {
         setAnswer('');
         setHasTypedSinceFeedback(false);
     };
+
+    if (! currentQuestion) {
+        return (
+        <PageWrapper practiceList={practiceList} setPracticeList={setPracticeList}>
+            <MainContent>
+                <p className="text-lg mb-6 text-gray-800">No available phrases. Please create one</p>
+            </MainContent>
+
+        </PageWrapper>
+
+        );
+    }
 
     return (
         <PageWrapper practiceList={practiceList} setPracticeList={setPracticeList}>

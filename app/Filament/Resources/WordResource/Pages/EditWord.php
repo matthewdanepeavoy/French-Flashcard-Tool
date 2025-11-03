@@ -16,4 +16,27 @@ class EditWord extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        if (isset($data['je'])) {
+            $data['conjugations'] = [
+                $data['je'],
+                $data['tu'],
+                $data['il/elle'],
+                $data['nous'],
+                $data['vous'],
+                $data['ils/elles'],
+            ];
+
+            unset($data['je']);
+            unset($data['tu']);
+            unset($data['il/elle']);
+            unset($data['nous']);
+            unset($data['vous']);
+            unset($data['ils/elles']);
+        }
+
+        return $data;
+    }
 }
