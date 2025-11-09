@@ -10,7 +10,7 @@ class FlashcardController extends Controller
 {
     public function index()
     {
-        $questions = Phrase::with('words')->limit(50)->get();
+        $questions = Phrase::with('words')->inRandomOrder()->limit(50)->get();
 
         return Inertia::render('Flashcards', [
             'questions' => $questions
@@ -19,31 +19,12 @@ class FlashcardController extends Controller
 
     public function checkAnswer(Request $request)
     {
-        $correctPhrase = $request->input('correct');
-        $userAnswer = trim($request->input('answer'));
+        $phrase = Phrase::find($request->question['id']);
 
-        $correctWords = preg_split('/\s+/', strtolower($correctPhrase));
-        $userWords = preg_split('/\s+/', strtolower($userAnswer));
+        $phrase->increment('correct_count');
 
-        $wordResults = [];
-        $correctCount = 0;
-
-        foreach ($correctWords as $i => $word) {
-            if (isset($userWords[$i]) && $userWords[$i] === $word) {
-                $wordResults[] = ['word' => $userWords[$i], 'correct' => true];
-                $correctCount++;
-            } else {
-                $wordResults[] = ['word' => $userWords[$i] ?? '', 'correct' => false, 'expected' => $word];
-            }
+        if ($request->input('attempts')) {
+            $phrase->increment('error_count');
         }
-
-        $accuracy = round(($correctCount / count($correctWords)) * 100, 2);
-        $isExact = strtolower($userAnswer) === strtolower($correctPhrase);
-
-        return response()->json([
-            'isExact' => $isExact,
-            'accuracy' => $accuracy,
-            'wordResults' => $wordResults
-        ]);
     }
 }

@@ -8,13 +8,14 @@ use Inertia\Inertia;
 use App\Models\Phrase;
 use App\Enums\Language;
 use App\Enums\WordType;
+use App\Enums\PhraseType;
 use Illuminate\Http\Request;
 
 class WordFormController extends Controller
 {
     public function show() {
-
         return Inertia::render('PhraseAddEdit', [
+            'types' => PhraseType::cases(),
             'existingWords' => session('existingWords', []),
         ]);
     }
@@ -22,11 +23,10 @@ class WordFormController extends Controller
     public function store(Request $request)
     {
 
-        // @todo: This needs to store a phrase if it doesn't already exist.
-
         $validated = $request->validate([
             'phrase' => 'required|string|max:255',
             'english' => 'required|string|max:255',
+            'type' => 'required'
         ]);
 
         $phrase = Phrase::create([
@@ -34,6 +34,7 @@ class WordFormController extends Controller
             'level' => Level::A1->value,
             'phrase' => $validated['phrase'],
             'english' => $validated['english'],
+            'type' => $validated['type']
         ]);
 
         return Inertia::render('PhraseAddEdit', [
@@ -52,31 +53,21 @@ class WordFormController extends Controller
 
         $words = $request->input('words');
 
+        // remove punctuation
+        $filtered_words = [];
+        foreach($words as $word) {
+            $filtered_words[] = preg_replace('/[.,!?;:]/', '', $word);
+        }
+
         $matches = [];
 
-        // @todo: Check existence of verbs. The tenses may be different.
-        // If not matching originally, check with conjugations, ex. je suis, j'aime, tu aimes
-
-
-        // Check existence of verbs with different j' je forms
-
-        // NOUNS
-            // masculine forms & feminime forms of nouns ()
-
-
-            // Have word "forms", just like "conjugations"
-            // First search base word. If no results:
-            // if "s" at end, try stripping the s and searching for "string contains"
-            // if e at end, try removing teh e and searching for "string contains"
-
-
-        foreach($words as $word) {
+        foreach($filtered_words as $word) {
             $match = Word::query()
                 ->where(function ($query) use ($word) {
-                    $query->where('word', $word)
-                        ->orWhereRaw("CONCAT(word, 's') = ?", [$word])
+                    $query->whereRaw('LOWER(word) = ?', [$word])
+                        ->orWhereRaw("LOWER(CONCAT(word, 's')) = LOWER(?)", [$word])
                         ->orWhere('feminine_form', $word)
-                        ->orWhereRaw("CONCAT(feminine_form, 's') = ?", [$word])
+                        ->orWhereRaw("LOWER(CONCAT(feminine_form, 's')) = LOWER(?)", [$word])
                         ->orWhere('contracted_form', $word)
                         ->orWhere(function ($q) use ($word) {
                             $q->where('type', WordType::Verb->value)
@@ -98,33 +89,13 @@ class WordFormController extends Controller
      // Store new words and link to phrase
     public function storeWords(Request $request)
     {
+
         $phrase = Phrase::findOrFail($request->phrase_id);
-
-
-        // dd($request->words);
-        // @todo: IMPT: EVEN IF WORD ALREADY EXISTS, WE WANT TO ASSOCIATE THIS PHRASE TO IT.
-
-        // If all matches, no words are being passed along!!!!!!
-        // This == []
-
-        // @todo: We need an array of found words, and all we need is the word IDs to associate.
-
-
-        // @todo: IF VERB
-        // Need to track infinitive and all conjugations
-        // Query based on all conjugations, and intelligently determine if I used the verb wrong.
-        // @todo: Remember the INFINITIVE is just 'word' in our Word model. We want that as the base word.
-
-
-
-        // now existing words will have an ID.
-
-
 
         foreach ($request->words as $data) {
 
             if (! $data['exists']) {
-                $word = $data['word'];
+                $word = $data['masculine_form'];
                 $conjugations = null;
                 if ( $data['type'] == WordType::Verb->value ) {
                     $word = $data['conjugations'][0];
@@ -140,15 +111,15 @@ class WordFormController extends Controller
 
                 // Create or update the word
                 $model = Word::create([
-                            'word' => $word,
-                            'type' => $data['type'],
-                            'hints' => $data['hints'] ?? null,
-                            'definition' => $data['definition'] ?? null,
-                            'feminine_form' => $data['feminine_form'] ?? null,
-                            'contracted_form' => $data['contracted_form'] ?? null,
-                            'conjugations' => $conjugations,
-                            'verb_group' => $data['verb_group'] ?? null
-                        ]);
+                        'word' => $word,
+                        'type' => $data['type'],
+                        'hints' => $data['hints'] ?? null,
+                        'definition' => $data['definition'] ?? null,
+                        'feminine_form' => $data['feminine_form'] ?? null,
+                        'contracted_form' => $data['contracted_form'] ?? null,
+                        'conjugations' => $conjugations,
+                        'verb_group' => $data['verb_group'] ?? null
+                    ]);
             } else {
                 $model = Word::find($data['id']);
             }

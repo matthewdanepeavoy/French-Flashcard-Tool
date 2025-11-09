@@ -5,6 +5,8 @@ import { useState } from "react";
 export default function WordFields({word, i, setWords}) {
     const [showForm, setShowForm] = useState(true);
 
+
+
     // Handle input changes for words
     const updateWordField = (index: number, field: keyof WordForm, value: any) => {
         setWords((prev) => {
@@ -23,7 +25,6 @@ export default function WordFields({word, i, setWords}) {
         setWords(words => {
             const updated = [...words];
             updated[wordIndex].group = group;
-            console.log(updated, wordIndex);
 
             return updated;
         });
@@ -58,13 +59,11 @@ export default function WordFields({word, i, setWords}) {
     };
 
     if (! showForm) {
-        return(<div>N</div>);
+        return(<div>Word skipped</div>);
     }
 
     if (word.exists) {
         setWords((prev) => {
-            console.log(prev);
-
             const copy = [...prev];
             copy[i].id = word.id;
 
@@ -86,10 +85,30 @@ export default function WordFields({word, i, setWords}) {
                 <X />
             </button>
             <p className="font-semibold mb-2">
-                Word: <span className="italic">{word.word}</span>{' '}
-                                    {word.exists && (
-                <span className="text-green-600 font-semibold ml-2">(Already exists)</span>
+                {word.exists && (
+                    <>
+                    Word: <span className="italic">{word.word}</span>{' '}
+                    <span className="text-green-600 font-semibold ml-2">(Already exists)</span>
+                    </>
                 )}
+
+                {! word.exists && (
+                    <>
+                    <label className="block mb-1 font-semibold text-gray-700">
+                        Word
+                    </label>
+                    <input
+                            type="text"
+                            value={word.masculine_form ?? word.word}
+                            onChange={e => updateWordField(i, 'masculine_form', e.target.value )}
+                            className="flex-grow rounded-md border border-blue-400 p-2
+                                        focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        />
+                    </>
+                )}
+
+
+
             </p>
 
             {! word.exists && (

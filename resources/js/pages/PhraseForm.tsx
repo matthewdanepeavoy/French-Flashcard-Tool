@@ -1,13 +1,15 @@
 import Badge from "@/components/Badge";
 import MainTitle from "@/components/MainTitle";
-import { WordForm, WordType } from "@/types/custom";
-import { router } from "@inertiajs/react";
+import { contractionsMap, WordForm, WordType } from "@/types/custom";
+import { router, usePage } from "@inertiajs/react";
 import { useEffect, useRef, useState } from "react";
 
 export default function PhraseForm({setMode, errors, setErrors, message, loading, setLoading, setPhraseId, setWords}) {
     const [phrase, setTargetPhrase] = useState('');
     const [english, setEnglish] = useState('');
+    const [type, setType] = useState('Basic');
 
+    const page = usePage();
     const inputRef = useRef(null);
 
     useEffect(() => {
@@ -30,7 +32,11 @@ export default function PhraseForm({setMode, errors, setErrors, message, loading
 
         router.post(
             '/phrases',
-            { phrase: phrase.trim(), english: english.trim() },
+            {
+                phrase: phrase.trim(),
+                english: english.trim(),
+                type
+            },
             {
                 preserveState: true,
                 preserveScroll: true,
@@ -61,16 +67,19 @@ export default function PhraseForm({setMode, errors, setErrors, message, loading
         const splitWords = targetPhrase
             .trim()
             .split(/\s+/)
-            .map(w => w.toLowerCase());
+            .map(w => {
+                return w.replace(/[.,!?;:]/g, '').toLowerCase()
+            });
 
-        const words = splitWords.map((word) => {
-            if (word.includes("j'")) {
-                word = word.replace("j'", '');
-            }
-
-            return word;
-
-        });
+            const words = splitWords.map((word) => {
+                for (const [contraction, replacement] of Object.entries(contractionsMap)) {
+                    if (word.startsWith(contraction)) {
+                        word = word.replace(contraction, '');
+                        break; // Stop after the first match
+                    }
+                }
+                return word;
+            });
 
         // Call backend API to check existence
         setLoading(true);
@@ -143,6 +152,22 @@ export default function PhraseForm({setMode, errors, setErrors, message, loading
                 required
             />
             </div>
+
+            <div>
+            <label className="block mb-1 font-semibold text-gray-700">Phrase Type</label>
+            <select
+                value={type}
+                onChange={e => setType(e.target.value)}
+                className="w-full rounded-md border border-blue-400 p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+            >
+                {page.props.types.map((type, index) => {
+                    return (<option value={type} key={index}>{type}</option>);
+                })}
+            </select>
+            </div>
+
+
 
             <button
             type="submit"

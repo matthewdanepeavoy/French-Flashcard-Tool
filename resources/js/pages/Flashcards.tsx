@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { PageProps } from '@inertiajs/core';
+import { PageProps, router } from '@inertiajs/core';
 import { Loader2 } from 'lucide-react';
 import PageWrapper from './PageWrapper';
 import Badge from '@/components/Badge';
@@ -10,41 +10,23 @@ import AnswerBox from '@/components/AnswerBox';
 import Score from '@/components/Score';
 import PhraseInput from '@/components/PhraseInput';
 import MainContent from './MainContent';
+import { contractionsMap, pronouns } from '@/types/custom';
 
 type Question = {
     id: number;
     english: string;
     phrase: string;
+    hint: string;
 };
 
 interface Props extends PageProps {
     questions: Question[];
 }
 
-function stripPunctuation(text: string) {
-    return text.replace(/[.,!?;:]/g, '');
-}
-
-const pronouns = ['je', 'tu', 'il', 'elle', 'on', 'nous', 'vous', 'ils', 'elles'];
 
     // Words need a masculine & feminine forms
     // Nouns, pronouns, adjectives, etc.
     // We also need contraction mapping to words???
-
-const contractionsMap: Record<string, string> = {
-    "j'": 'je',
-    "l'": 'le',
-    "m'": 'me',
-    "t'": 'te',
-    "s'": 'se',
-    "d'": 'de',
-    "c'": 'ce',
-    "n'": 'ne',
-    "qu'": 'que',
-    "jusqu'": 'jusque',
-    "lorsqu'": 'lorsque',
-    "puisqu'": 'puisque',
-};
 
 function normalizePhrase(text: string): string {
     // Lowercase
@@ -94,6 +76,25 @@ export default function Flashcards({ questions }: Props) {
 
     const currentQuestion = questions[currentIndex];
 
+    var hasFormality = false;
+    var isFormal = false;
+
+    if (currentQuestion.phrase.includes('vous') ||
+        currentQuestion.phrase.includes('vos'))
+    {
+        hasFormality = true;
+        isFormal = true;
+    }
+    if (currentQuestion.phrase.includes('tu') ||
+        currentQuestion.phrase.includes("t'") ||
+        currentQuestion.phrase.includes('ton') ||
+        currentQuestion.phrase.includes('te') ||
+        currentQuestion.phrase.includes('ta')
+    ) {
+        hasFormality = true;
+        isFormal = false;
+    }
+
     const autoNextTimeout = useRef<number | null>(null);
     const [isAutoAdvancing, setIsAutoAdvancing] = useState(false);
 
@@ -111,6 +112,7 @@ export default function Flashcards({ questions }: Props) {
         const usedIndices = new Set<number>();
         const wordResults = correctWords.map((word) => {
             const wordData = currentQuestion.words.filter((data) => {
+
                 if (word == data.word) return true;
                 if (word == data.word + 's') return true;
                 if (word == data.word + 'x') return true;
@@ -156,6 +158,24 @@ export default function Flashcards({ questions }: Props) {
             autoNextTimeout.current = window.setTimeout(() => {
             setIsAutoAdvancing(false);
             nextQuestion();
+
+            // API CALL HERE
+            router.post(
+                route('flashcards.check'),
+                {
+                    question: currentQuestion, attempts: attempts[currentQuestion.id]
+                },
+                {
+                    onSuccess: (page) => {
+
+                    },
+                    // onError: (errors) => {
+
+                    // },
+                }
+            );
+
+
             }, 1000);
         }
     };
@@ -222,9 +242,15 @@ export default function Flashcards({ questions }: Props) {
                 )}
 
                 {/* Question form */}
-                <p className="text-lg mb-6 text-gray-800">
-                    <strong>Phrase:</strong> {currentQuestion.english}
+                <p className="text-lg mb-2 text-gray-800">
+                    <strong>Phrase:</strong> {currentQuestion.english} <span className="italic text-gray-500 ml-3">{ hasFormality ? (isFormal ? '(formal)' : '') : '' }</span>
                 </p>
+
+                {(currentQuestion.hint) ? (
+                    <p className="text-md mt-2 mb-6 text-blue-500">
+                        <strong>Hint: </strong>{currentQuestion.hint}
+                    </p>
+                ): ''}
 
                 <input
                     type="text"

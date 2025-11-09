@@ -42,6 +42,7 @@ export default function PhraseAddEdit() {
             type: w.type,
             definition: w.definition,
             feminine_form: w.feminine_form,
+            masculine_form: w.masculine_form ?? w.word,
             contracted_form: w.contracted_form,
             hints: w.hints,
             group: w.group,
@@ -58,8 +59,6 @@ export default function PhraseAddEdit() {
                     setSavingWords(false);
                     setWords([]);
                     setMessage('Phrase saved successfully');
-                    //   alert('hi');
-                    //   console.log(page);
 
                     // alert('Words saved and linked to phrase!');
                     // Optionally reset form or redirect

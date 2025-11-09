@@ -34,21 +34,23 @@ class WordResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('word')
                             ->label('Masculine form')
+                            ->autofocus()
                             ->required(),
-
-                        Forms\Components\TextInput::make('feminine_form'),
-                        Forms\Components\TextInput::make('contracted_form'),
 
                         Select::make('type')
                             ->options(WordType::class)
                             ->native(false)
                             ->preload()
+                            ->default('noun')
+                            ->searchable()
                             ->required()
                             ->live(),
 
                         Forms\Components\TextInput::make('definition')
                             ->required(),
 
+                        Forms\Components\TextInput::make('feminine_form'),
+                        Forms\Components\TextInput::make('contracted_form'),
                         Forms\Components\TextInput::make('hints'),
                     ]),
 
@@ -63,28 +65,28 @@ class WordResource extends Resource
                     ->schema([
                         TextInput::make('je')
                             ->formatStateUsing(function($record) {
-                                if ($record->conjugations) return $record->conjugations[0];
+                                if ($record?->conjugations) return $record?->conjugations[0];
                             }),
                         TextInput::make('tu')
                             ->formatStateUsing(function($record) {
-                                if ($record->conjugations) return $record->conjugations[1];
+                                if ($record?->conjugations) return $record?->conjugations[1];
                             }),
                         TextInput::make('il/elle')
                             ->formatStateUsing(function($record) {
-                                if ($record->conjugations) return $record->conjugations[2];
+                                if ($record?->conjugations) return $record?->conjugations[2];
                             }),
                         TextInput::make('nous')
                             ->formatStateUsing(function($record) {
-                                if ($record->conjugations) return $record->conjugations[3];
+                                if ($record?->conjugations) return $record?->conjugations[3];
                             }),
                         TextInput::make('vous')
                             ->formatStateUsing(function($record) {
-                                if ($record->conjugations) return $record->conjugations[4];
+                                if ($record?->conjugations) return $record?->conjugations[4];
                             }),
 
                         TextInput::make('ils/elles')
                             ->formatStateUsing(function($record) {
-                                if ($record->conjugations) return $record->conjugations[5];
+                                if ($record?->conjugations) return $record?->conjugations[5];
                             }),
                     ]),
                 // Forms\Components\Textarea::make('conjugations')
@@ -97,6 +99,8 @@ class WordResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('word')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('definition')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('type')
                     ->searchable(),

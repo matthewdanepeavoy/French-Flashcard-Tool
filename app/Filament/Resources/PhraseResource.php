@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Section;
+use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\PhraseResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -26,16 +27,22 @@ class PhraseResource extends Resource
         return $form
             ->schema([
                 Section::make('Phrase')
-                    ->columns(2)
+                    ->columns(4)
                     ->schema([
                         Forms\Components\TextInput::make('phrase')
+                            ->columnSpan(2)
                             ->required(),
                         Forms\Components\TextInput::make('english')
+                            ->columnSpan(2)
+                            ->required(),
+                        Forms\Components\TextInput::make('hint'),
+                        Forms\Components\TextInput::make('type')
                             ->required(),
                         Forms\Components\TextInput::make('language')
                             ->required(),
                         Forms\Components\TextInput::make('level')
                             ->required(),
+
                     ]),
 
                 Section::make('Attempts')
@@ -59,11 +66,14 @@ class PhraseResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('language')
+                Tables\Columns\TextColumn::make('level')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('phrase')
+                    ->wrap()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('english')
+                    ->wrap()
+
                     ->searchable(),
                 Tables\Columns\TextColumn::make('correct_count')
                     ->numeric()
@@ -71,6 +81,11 @@ class PhraseResource extends Resource
                 Tables\Columns\TextColumn::make('error_count')
                     ->numeric()
                     ->sortable(),
+                TextColumn::make('words_count') // you can name it whatever you like
+                    ->label('Words')
+                    ->sortable()
+                    ->counts('words') // counts the related models
+                    ,
                 Tables\Columns\IconColumn::make('mastered')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -93,6 +108,12 @@ class PhraseResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getTableQuery(): Builder
+    {
+        return parent::getTableQuery()
+            ->withCount('words'); // 'associations' is your hasMany relationship
     }
 
     public static function getRelations(): array

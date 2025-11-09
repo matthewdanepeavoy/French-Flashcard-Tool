@@ -36,6 +36,11 @@ export default function WordsIndex({ words }) {
                     Word List
                 </h1>
 
+
+                <p className="text-red-600 bg-blue-300 p-5 rounded-xl">
+                        Also add filters here for "Phrase type (ex. question), levels, language", showing correct/incorrect.
+                        <br></br>Order by the number of times it has appeared, without being "mastered"</p>
+
                 {Object.entries(words).map(([type, wordsList]) => (
                     <div key={type}>
                     <h2 className="text-3xl font-semibold mb-4 text-white">{type}</h2>
