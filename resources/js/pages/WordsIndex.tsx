@@ -20,9 +20,6 @@ conjugations?: string[]; // now just an array of strings
 phrases: Phrase[];
 }
 
-interface Props {
-words: Record<string, Word[]>; // grouped by type: { 'verb': [...], 'noun': [...] }
-}
 
 export default function WordsIndex({ words }) {
     const [practiceList, setPracticeList] = useState<Set<string>>(new Set());
@@ -62,6 +59,8 @@ export default function WordsIndex({ words }) {
 const WordCard: React.FC<{ word: Word }> = ({ word }) => {
     const totalPhrases = word.phrases.length;
     const masteredCount = word.phrases.filter((p) => p.mastered).length;
+
+    console.log(masteredCount);
 
     return (
         <div className="bg-white rounded-xl shadow-xl shadow-black/40 p-4 flex flex-col space-y-3 relative">

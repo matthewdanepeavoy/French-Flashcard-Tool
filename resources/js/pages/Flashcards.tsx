@@ -66,7 +66,7 @@ function normalizePhrase(text: string): string {
 export default function Flashcards({ questions }: Props) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answer, setAnswer] = useState('');
-    const [feedback, setFeedback] = useState<any>(null);
+    const [feedback, setFeedback] = useState(null);
     const [score, setScore] = useState(0);
     const [attempts, setAttempts] = useState<Record<number, { tries: number; correct: boolean }>>({});
 
@@ -166,7 +166,7 @@ export default function Flashcards({ questions }: Props) {
                     question: currentQuestion, attempts: attempts[currentQuestion.id]
                 },
                 {
-                    onSuccess: (page) => {
+                    onSuccess: () => {
 
                     },
                     // onError: (errors) => {

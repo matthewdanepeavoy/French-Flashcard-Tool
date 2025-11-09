@@ -72,7 +72,7 @@ export default function PhraseForm({setMode, errors, setErrors, message, loading
             });
 
             const words = splitWords.map((word) => {
-                for (const [contraction, replacement] of Object.entries(contractionsMap)) {
+                for (const [contraction] of Object.entries(contractionsMap)) {
                     if (word.startsWith(contraction)) {
                         word = word.replace(contraction, '');
                         break; // Stop after the first match

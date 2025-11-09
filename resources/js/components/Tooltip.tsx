@@ -6,18 +6,18 @@ export default function Tooltip({ word, practiceList, setPracticeList, tooltipWo
 
     const tooltipRef = useRef(null);
 
+    const handleClickOutside = (event) => {
+        if (tooltipRef.current && ! tooltipRef.current.contains(event.target)) {
+            setTooltipWord(false);
+        }
+    };
+
     useEffect(() => {
       document.addEventListener('mousedown', handleClickOutside);
       return () => {
         document.removeEventListener('mousedown', handleClickOutside);
       };
     }, [tooltipWord == word.expected]);
-
-    const handleClickOutside = (event) => {
-        if (tooltipRef.current && ! tooltipRef.current.contains(event.target)) {
-            setTooltipWord(false);
-        }
-    };
 
     const [practiceConfirm, setPracticeConfirm] = useState<{
             word: string;

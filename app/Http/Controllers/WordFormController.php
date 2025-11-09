@@ -66,6 +66,7 @@ class WordFormController extends Controller
                 ->where(function ($query) use ($word) {
                     $query->whereRaw('LOWER(word) = ?', [$word])
                         ->orWhereRaw("LOWER(CONCAT(word, 's')) = LOWER(?)", [$word])
+                        ->orWhereRaw("LOWER(CONCAT(word, 'x')) = LOWER(?)", [$word]) // ex cadeau / cadeaux
                         ->orWhere('feminine_form', $word)
                         ->orWhereRaw("LOWER(CONCAT(feminine_form, 's')) = LOWER(?)", [$word])
                         ->orWhere('contracted_form', $word)

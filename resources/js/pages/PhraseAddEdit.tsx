@@ -54,7 +54,7 @@ export default function PhraseAddEdit() {
             '/words',
             { phrase_id: phraseId, words: formattedWords },
             {
-                onSuccess: (page) => {
+                onSuccess: () => {
                     setMode('phrase');
                     setSavingWords(false);
                     setWords([]);

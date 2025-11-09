@@ -6,7 +6,7 @@ export default function WordFields({word, i, setWords}) {
     const [showForm, setShowForm] = useState(true);
 
     // Handle input changes for words
-    const updateWordField = (index: number, field: keyof WordForm, value: any) => {
+    const updateWordField = (index: number, field: keyof WordForm, value: string) => {
         setWords((prev) => {
             const words = [...prev];
             words[index] = { ...words[index], [field]: value };
@@ -43,15 +43,6 @@ export default function WordFields({word, i, setWords}) {
         setWords((prev) => {
         const copy = [...prev];
         copy[wordIndex].conjugations[conjIndex] = value;
-        return copy;
-        });
-    };
-
-    // Remove conjugation input
-    const removeConjugation = (wordIndex: number, conjIndex: number) => {
-        setWords((prev) => {
-        const copy = [...prev];
-        copy[wordIndex].conjugations.splice(conjIndex, 1);
         return copy;
         });
     };
