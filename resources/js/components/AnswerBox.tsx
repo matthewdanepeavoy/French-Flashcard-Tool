@@ -16,7 +16,7 @@ export default function AnswerBox({feedback, practiceList, setPracticeList}) {
                 Accuracy: {feedback.accuracy}%
             </p>
             <div className="text-xl">
-                {feedback.wordResults.map((word: any, i: number) => (
+                {feedback.wordResults.map((word: object, i: number) => (
                     <WordAnswer key={i} word={word} tooltipWord={tooltipWord} setTooltipWord={setTooltipWord} practiceList={practiceList} setPracticeList={setPracticeList} />
                 ))}
             </div>
@@ -26,7 +26,7 @@ export default function AnswerBox({feedback, practiceList, setPracticeList}) {
 
 function WordAnswer({word, tooltipWord, setTooltipWord, practiceList, setPracticeList}) {
 
-    const getWordStyle = (wordObj: any) => {
+    const getWordStyle = (wordObj: object) => {
         if (wordObj.correct) {
             return {
                 color: '#0f5132',
@@ -51,7 +51,7 @@ function WordAnswer({word, tooltipWord, setTooltipWord, practiceList, setPractic
 
     const handleWordClick = (
         e: React.MouseEvent<HTMLSpanElement>,
-        wordObj: any
+        wordObj: object
     ) => {
         setTooltipWord((prev) => {
             if (prev == wordObj.expected) return false;
