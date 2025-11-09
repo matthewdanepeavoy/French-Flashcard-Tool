@@ -6,8 +6,10 @@ use Filament\Forms;
 use Filament\Tables;
 use App\Models\Phrase;
 use Filament\Forms\Form;
+use App\Enums\PhraseType;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
@@ -36,7 +38,10 @@ class PhraseResource extends Resource
                             ->columnSpan(2)
                             ->required(),
                         Forms\Components\TextInput::make('hint'),
-                        Forms\Components\TextInput::make('type')
+                        Select::make('type')
+                            ->options(PhraseType::class)
+                            ->preload()
+                            ->searchable()
                             ->required(),
                         Forms\Components\TextInput::make('language')
                             ->required(),

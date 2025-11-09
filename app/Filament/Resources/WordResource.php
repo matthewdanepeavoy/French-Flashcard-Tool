@@ -37,6 +37,9 @@ class WordResource extends Resource
                             ->autofocus()
                             ->required(),
 
+                        Forms\Components\TextInput::make('definition')
+                            ->required(),
+
                         Select::make('type')
                             ->options(WordType::class)
                             ->native(false)
@@ -46,8 +49,7 @@ class WordResource extends Resource
                             ->required()
                             ->live(),
 
-                        Forms\Components\TextInput::make('definition')
-                            ->required(),
+
 
                         Forms\Components\TextInput::make('feminine_form'),
                         Forms\Components\TextInput::make('contracted_form'),
@@ -99,6 +101,7 @@ class WordResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('word')
+                    ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('definition')
                     ->searchable(),

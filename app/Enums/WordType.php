@@ -8,4 +8,5 @@ enum WordType: string
     case Adjective = 'adjective';
     case Adverb = 'adverb';
     case Article = 'article';
+    case FixedExpression = 'fixed_expression';
 }

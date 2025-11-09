@@ -66,7 +66,7 @@ export default function PhraseForm({setMode, errors, setErrors, message, loading
     const prepareWords = (targetPhrase: string) => {
         const splitWords = targetPhrase
             .trim()
-            .split(/\s+/)
+            .split(/[\s-]+/)
             .map(w => {
                 return w.replace(/[.,!?;:]/g, '').toLowerCase()
             });
@@ -138,6 +138,7 @@ export default function PhraseForm({setMode, errors, setErrors, message, loading
                 onChange={e => setTargetPhrase(e.target.value)}
                 className="w-full rounded-md border border-blue-400 p-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 required
+                autoFocus
                 ref={inputRef}
             />
             </div>

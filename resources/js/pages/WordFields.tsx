@@ -5,8 +5,6 @@ import { useState } from "react";
 export default function WordFields({word, i, setWords}) {
     const [showForm, setShowForm] = useState(true);
 
-
-
     // Handle input changes for words
     const updateWordField = (index: number, field: keyof WordForm, value: any) => {
         setWords((prev) => {
@@ -140,35 +138,38 @@ export default function WordFields({word, i, setWords}) {
                     <option value="adverb">Adverb</option>
                 </select>
 
-                <div className="flex">
+                {word.type !== 'verb' && (
+                    <div className="flex">
 
-                    <div className="flex flex-col flex-1">
+                        <div className="flex flex-col flex-1">
 
-                        <label className="block mb-1 font-semibold text-gray-700">
-                            Feminine form
-                        </label>
-                        <input
-                            type="text"
-                            value={word.feminine_form ?? ""}
-                            onChange={e => updateWordField(i, 'feminine_form', e.target.value as WordType)}
-                            className="flex-grow rounded-md border border-blue-400 p-2
-                                        focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
+                            <label className="block mb-1 font-semibold text-gray-700">
+                                Feminine form
+                            </label>
+                            <input
+                                type="text"
+                                value={word.feminine_form ?? ""}
+                                onChange={e => updateWordField(i, 'feminine_form', e.target.value as WordType)}
+                                className="flex-grow rounded-md border border-blue-400 p-2
+                                            focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                        </div>
+
+                        <div className="flex flex-col flex-1 ml-4">
+                            <label className="block mb-1 font-semibold text-gray-700">
+                                Contracted form
+                            </label>
+                            <input
+                                type="text"
+                                value={word.contracted_form ?? ""}
+                                onChange={e => updateWordField(i, 'contracted_form', e.target.value as WordType)}
+                                className="flex-grow rounded-md border border-blue-400 p-2
+                                            focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            />
+                        </div>
                     </div>
+                )}
 
-                    <div className="flex flex-col flex-1 ml-4">
-                        <label className="block mb-1 font-semibold text-gray-700">
-                            Contracted form
-                        </label>
-                        <input
-                            type="text"
-                            value={word.contracted_form ?? ""}
-                            onChange={e => updateWordField(i, 'contracted_form', e.target.value as WordType)}
-                            className="flex-grow rounded-md border border-blue-400 p-2
-                                        focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        />
-                    </div>
-                </div>
 
 
                 <label className="block mb-1 font-semibold text-gray-700">
