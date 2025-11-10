@@ -25,6 +25,7 @@ class WordResource extends Resource
     protected static ?string $model = Word::class;
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?int $navigationSort = 1;
     public static function form(Form $form): Form
     {
         return $form
@@ -54,6 +55,11 @@ class WordResource extends Resource
                         Forms\Components\TextInput::make('feminine_form'),
                         Forms\Components\TextInput::make('contracted_form'),
                         Forms\Components\TextInput::make('hints'),
+                        Select::make('tags')
+                            ->relationship('tags', titleAttribute: 'name')
+                            ->searchable()
+                            ->multiple()
+                            ->preload(),
                     ]),
 
 
@@ -90,6 +96,8 @@ class WordResource extends Resource
                             ->formatStateUsing(function($record) {
                                 if ($record?->conjugations) return $record?->conjugations[5];
                             }),
+
+
                     ]),
                 // Forms\Components\Textarea::make('conjugations')
                     // ->columnSpanFull(),

@@ -23,4 +23,8 @@ class Phrase extends Model
     public function words(): BelongsToMany {
         return $this->belongsToMany(Word::class);
     }
+
+    public function tags(): BelongsToMany {
+        return $this->belongsToMany(Tag::class, 'phrases_tags');
+    }
 }

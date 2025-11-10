@@ -78,21 +78,25 @@ export default function Flashcards({ loadedQuestions }: Props) {
 
     const [currentQuestion, setCurrentQuestion] = useState(questions[currentIndex]);
 
-    var hasFormality = false;
-    var isFormal = false;
+    let hasFormality = false;
+    let isFormal = false;
+    let isVerbose = false;
 
-    if (currentQuestion.phrase.includes('vous') ||
-        currentQuestion.phrase.includes('vos'))
-    {
+    const phrase = currentQuestion.phrase.toLowerCase();
+
+    const formalWords = [' vous ', ' vos '];
+    const informalWords = [' tu ', "t'", ' ton ', ' te ', ' ta '];
+
+    if (formalWords.some(word => phrase.includes(word))) {
         hasFormality = true;
         isFormal = true;
     }
-    if (currentQuestion.phrase.includes('tu') ||
-        currentQuestion.phrase.includes("t'") ||
-        currentQuestion.phrase.includes('ton') ||
-        currentQuestion.phrase.includes('te') ||
-        currentQuestion.phrase.includes('ta')
-    ) {
+
+    if (phrase.includes('est-ce')) {
+        isVerbose = true;
+    }
+
+    if (informalWords.some(word => phrase.includes(word))) {
         hasFormality = true;
         isFormal = false;
     }
@@ -254,7 +258,9 @@ export default function Flashcards({ loadedQuestions }: Props) {
 
                 {/* Question form */}
                 <p className="text-lg mb-2 text-gray-800">
-                    <strong>Phrase:</strong> {currentQuestion.english} <span className="italic text-gray-500 ml-3">{ hasFormality ? (isFormal ? '(formal)' : '') : '' }</span>
+                    <strong>Phrase:</strong> {currentQuestion.english}
+                        <span className="italic text-gray-500 ml-3">{ hasFormality ? (isFormal ? '(formal)' : '') : '' }</span>
+                        <span className="italic text-gray-500 ml-3">{ isVerbose ? '(verbose)' : ''}</span>
                 </p>
 
                 {(currentQuestion.hint) ? (

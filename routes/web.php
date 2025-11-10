@@ -1,10 +1,14 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+use App\Models\Tag;
+use App\Models\Word;
 use Inertia\Inertia;
-use App\Http\Controllers\FlashcardController;
+use App\Models\Phrase;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WordController;
 use App\Http\Controllers\WordFormController;
+use App\Http\Controllers\FlashcardController;
 
 Route::get('/home', function () {
     return Inertia::render('welcome');

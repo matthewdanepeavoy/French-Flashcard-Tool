@@ -2,7 +2,7 @@ export default function Header({practiceList, setPracticeList}) {
     return(
         <div className="flex justify-between items-center bg-blue-900 text-white p-4  mb-6 shadow-md">
             <a
-                href="/admin"
+                href="/admin/phrases"
                 className="font-semibold hover:underline"
             >
                 ← Back to Admin Panel

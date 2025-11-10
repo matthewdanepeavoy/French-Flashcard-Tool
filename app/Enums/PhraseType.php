@@ -6,6 +6,7 @@ enum PhraseType: string
     case Basic = 'Basic';
     case Question = 'Question';
     case SelfActions = 'SelfActions';
+    case Directions = 'Directions';
     case Frequency = 'Frequency';
     case Weather = 'Weather';
     case Seasons = 'Seasons';

@@ -21,6 +21,7 @@ use App\Filament\Resources\PhraseResource\RelationManagers\WordsRelationManager;
 class PhraseResource extends Resource
 {
     protected static ?string $model = Phrase::class;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
@@ -50,9 +51,14 @@ class PhraseResource extends Resource
 
                     ]),
 
-                Section::make('Attempts')
+                Section::make('Meta Data')
                     ->columns(3)
                     ->schema([
+                        Select::make('tags')
+                            ->relationship('tags', titleAttribute: 'name')
+                            ->searchable()
+                            ->multiple()
+                            ->preload(),
                         Forms\Components\TextInput::make('correct_count')
                             ->required()
                             ->numeric()
