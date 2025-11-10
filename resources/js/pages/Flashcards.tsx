@@ -63,7 +63,9 @@ function normalizePhrase(text: string): string {
     // return joined.replace('_', ' ');
 }
 
-export default function Flashcards({ questions }: Props) {
+export default function Flashcards({ loadedQuestions }: Props) {
+    const [questions, setQuestions] = useState(loadedQuestions);
+
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answer, setAnswer] = useState('');
     const [feedback, setFeedback] = useState(null);
@@ -74,7 +76,7 @@ export default function Flashcards({ questions }: Props) {
 
     const [hasTypedSinceFeedback, setHasTypedSinceFeedback] = useState(false);
 
-    const currentQuestion = questions[currentIndex];
+    const [currentQuestion, setCurrentQuestion] = useState(questions[currentIndex]);
 
     var hasFormality = false;
     var isFormal = false;
@@ -136,7 +138,6 @@ export default function Flashcards({ questions }: Props) {
         const accuracy = Math.round((correctCount / correctWords.length) * 100);
         const isExact = userAnswer === correctPhrase;
 
-
         setFeedback({ isExact, accuracy, wordResults });
 
         setAttempts(prev => ({
@@ -166,31 +167,41 @@ export default function Flashcards({ questions }: Props) {
                     question: currentQuestion, attempts: attempts[currentQuestion.id]
                 },
                 {
-                    onSuccess: () => {
+                    preserveState: true,
+                    preserveScroll: true,
+                    onSuccess: page => {
 
-                    },
+                        if (page.props.newQuestion) {
+                            setCurrentIndex(0); // optional, if you use index-based state
+                            setAnswer('');
+                            setFeedback(null);
+                            // replace your current question with the new one
+                            // assuming questions is local state array:
+                            setQuestions(page.props.newQuestion);
+                            setCurrentQuestion(page.props.newQuestion[0]);
+                        }
+                    }
                     // onError: (errors) => {
 
                     // },
                 }
             );
-
-
             }, 1000);
         }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === 'Enter') {
-            if (!feedback) {
+        if (! feedback) {
+            if (e.key === 'Enter') {
                 checkAnswer();
-            } else {
-                if (feedback.isExact) {
-                    nextQuestion();
-                } else {
-                    retryQuestion();
-                }
             }
+            return;
+        }
+
+        if (feedback.isExact) {
+            // nextQuestion();
+        } else {
+            retryQuestion();
         }
     };
 
@@ -269,7 +280,7 @@ export default function Flashcards({ questions }: Props) {
                         }
                         setHasTypedSinceFeedback(true);
                     }}
-
+                    autoFocus
                     onKeyDown={handleKeyDown}
                     autoComplete="off"
                     readOnly={feedback?.isExact === true}

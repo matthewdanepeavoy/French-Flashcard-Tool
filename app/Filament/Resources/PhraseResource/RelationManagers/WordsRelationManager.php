@@ -14,6 +14,8 @@ use Filament\Resources\RelationManagers\RelationManager;
 class WordsRelationManager extends RelationManager
 {
     protected static string $relationship = 'words';
+    protected static ?string $recordTitleAttribute = 'word';
+
 
     public function form(Form $form): Form
     {

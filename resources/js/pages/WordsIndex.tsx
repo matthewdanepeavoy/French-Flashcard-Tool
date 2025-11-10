@@ -60,8 +60,6 @@ const WordCard: React.FC<{ word: Word }> = ({ word }) => {
     const totalPhrases = word.phrases.length;
     const masteredCount = word.phrases.filter((p) => p.mastered).length;
 
-    console.log(masteredCount);
-
     return (
         <div className="bg-white rounded-xl shadow-xl shadow-black/40 p-4 flex flex-col space-y-3 relative">
             <div className="flex justify-between items-start">

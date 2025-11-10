@@ -18,6 +18,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/words/index', [WordController::class, 'index'])->name('words.index');
 
     Route::get('/', [FlashcardController::class, 'index'])->name('flashcards.index');
+    Route::get('/check-answer', [FlashcardController::class, 'index'])->name('flashcards.check');
+
     Route::post('/check-answer', [FlashcardController::class, 'checkAnswer'])->name('flashcards.check');
 
     Route::get('/phrases', [WordFormController::class, 'show'])->name('wordform.show');

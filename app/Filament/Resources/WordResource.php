@@ -16,13 +16,13 @@ use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\WordResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\RelationManagers\RelationManager;
 use App\Filament\Resources\WordResource\RelationManagers;
 use App\Filament\Resources\WordResource\RelationManagers\PhrasesRelationManager;
 
 class WordResource extends Resource
 {
     protected static ?string $model = Word::class;
-
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
@@ -99,6 +99,11 @@ class WordResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->headerActions([
+                // Tables\Actions\CreateAction::make(),  // ✅ Add "Create"
+                Tables\Actions\AttachAction::make()
+                    ->visible(fn($livewire) => $livewire instanceof RelationManager),  // ✅ Add "Attach" (for BelongsToMany)
+            ])
             ->columns([
                 Tables\Columns\TextColumn::make('word')
                     ->sortable()
@@ -123,10 +128,13 @@ class WordResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DetachAction::make()
+                    ->visible(fn($livewire) => $livewire instanceof RelationManager),
+                // ✅ Add "Attach" (for BelongsToMany)
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }
