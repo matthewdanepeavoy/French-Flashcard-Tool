@@ -115,7 +115,7 @@ export default function WordFields({word, i, setWords}) {
                     Type of word
                 </label>
                 <select
-                    value={word.type}
+                    value={word.type || 'noun'}
                     onChange={e => updateWordField(i, 'type', e.target.value as WordType)}
                     className="w-full mb-3 rounded-md border border-blue-400 p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
                     required

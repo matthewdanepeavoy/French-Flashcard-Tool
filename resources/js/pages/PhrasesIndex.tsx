@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import PageWrapper from "./PageWrapper";
 import Badge from "@/components/Badge";
+import { router } from "@inertiajs/react";
 
 export default function PhrasesIndex({ phrases }) {
   const [practiceList, setPracticeList] = useState(new Set());
@@ -59,6 +60,15 @@ export default function PhrasesIndex({ phrases }) {
   if (selectedType !== "All") {
     list = list.filter((w) => w.type === selectedType);
   }
+
+  let existingIds = [];
+  list = list.filter((w) => {
+    if (existingIds.includes(w.id)) return false;
+    existingIds.push(w.id);
+
+    return w;
+  });
+
 
   // Sorting
   switch (sortOrder) {
@@ -151,30 +161,7 @@ export default function PhrasesIndex({ phrases }) {
             </thead>
            <tbody>
                 {filteredPhrases.map((phrase, index) => (
-                    <tr key={`${phrase.id}-${index}`}>
-                    <td className="px-4 py-2 font-semibold">{phrase.phrase}</td>
-                    <td className="px-4 py-2">{phrase.english}</td>
-                    <td className="px-4 py-2 text-center">{phrase.words?.length ?? 0}</td>
-                    <td className="px-4 py-2 text-center">{phrase.level}</td>
-                    <td className="px-4 py-2 text-center">{phrase.correct_count}</td>
-                    <td className="px-4 py-2 text-center">{phrase.error_count}</td>
-                    <td className="px-4 py-2 text-right space-x-2">
-                        <a
-                          href={`/admin/words/${phrase.id}/edit`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-md px-3 py-1 rounded shadow"
-                        >
-                        Edit
-                      </a>
-                        <button
-                        onClick={() => Inertia.get(`/practice?phrase_id=${phrase.id}`)}
-                        className="bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs px-3 py-1 rounded"
-                        >
-                        Practice
-                        </button>
-                    </td>
-                    </tr>
+                    <TableRow key={phrase.id} phrase={phrase} />
                 ))}
                 </tbody>
           </table>
@@ -188,4 +175,54 @@ export default function PhrasesIndex({ phrases }) {
       </div>
     </PageWrapper>
   );
+}
+
+
+function TableRow({phrase}) {
+  const [practice, setPractice] = useState(phrase.to_practice);
+
+  return(
+    <tr
+      key={phrase.id}
+      className="hover:bg-blue-800/50 transition-colors"
+    >
+      <td className="px-4 py-2 font-semibold">{phrase.phrase}</td>
+      <td className="px-4 py-2">{phrase.english}</td>
+      <td className="px-4 py-2 text-center">{phrase.words?.length ?? 0}</td>
+      <td className="px-4 py-2 text-center">{phrase.level}</td>
+      <td className="px-4 py-2 text-center">{phrase.correct_count}</td>
+      <td className="px-4 py-2 text-center">{phrase.error_count}</td>
+      <td className="px-4 py-2 text-right space-x-2">
+          <a
+            href={`/admin/phrases/${phrase.id}/edit`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-md px-3 py-1 rounded shadow"
+          >
+          Edit
+        </a>
+
+        <button
+          onClick={() => {
+            router.post(
+                route('toggle.practice'),
+                {
+                    model_id: phrase.id, model_type: 'phrase'
+                },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    onSuccess: page => {
+                      setPractice( ! practice);
+                    }
+                }
+            );
+          }}
+          className={`text-white font-semibold text-xs px-3 py-1 rounded ${practice ? 'bg-red-700 hover:bg-red-800': 'bg-blue-700 hover:bg-blue-800'}`}
+        >
+          {practice ? 'Remove': 'Practice'}
+        </button>
+      </td>
+    </tr>
+  )
 }

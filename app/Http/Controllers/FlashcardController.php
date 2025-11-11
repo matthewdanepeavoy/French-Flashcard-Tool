@@ -8,18 +8,9 @@ use Illuminate\Http\Request;
 
 class FlashcardController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $questions = Phrase::with('words')
-            ->orderBy('updated_at', 'asc') // oldest updated first
-
-            // ->inRandomOrder()
-            ->limit(1)->get();
-
-        return Inertia::render('Flashcards', [
-            'loadedQuestions' => $questions,
-            'default' => 'default'
-        ]);
+        return $this->renderFlashcards($request);
     }
 
     public function checkAnswer(Request $request)
@@ -33,17 +24,32 @@ class FlashcardController extends Controller
         }
 
         // Get a new random question
-        $newQuestion = Phrase::with('words')
+        return $this->renderFlashcards($request);
+    }
+
+    private function renderFlashcards($request) {
+        $practice_type = false;
+        if ($request->input('type')) {
+            $practice_type = $request->input('type');
+        }
+
+        $questions = Phrase::with('words')
             ->orderBy('updated_at', 'asc') // oldest updated first
+            ->when(fn() => $practice_type, function($query) use ($practice_type) {
+                if ($practice_type == 'phrases') {
+                    return $query->where('to_practice', true);
+                }
 
-            // ->inRandomOrder()
-            ->first();
-        info($newQuestion->id);
+                return $query->whereHas('words', function($q2) {
+                    return $q2->where('to_practice', true);
+                });
+            })
+            ->limit(1)
+            ->get();
 
-        // Return it as JSON for Inertia
         return Inertia::render('Flashcards', [
-            'newQuestion' => [$newQuestion], // send as array if your frontend expects it
-            // optionally send other props like score, attempts, etc.
+            'loadedQuestions' => $questions,
+            'practice_mode' => $practice_type
         ]);
     }
 }

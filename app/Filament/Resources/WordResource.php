@@ -44,11 +44,11 @@ class WordResource extends Resource
 
                         Select::make('type')
                             ->options(WordType::class)
-                            ->native(false)
-                            ->preload()
-                            ->default('noun')
-                            ->searchable()
-                            ->required()
+                            // ->native(false)
+                            // ->preload()
+                            ->default(WordType::Noun->value)
+                            // ->searchable()
+                            // ->required()
                             ->live(),
 
 

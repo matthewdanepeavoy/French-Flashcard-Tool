@@ -63,9 +63,16 @@ function normalizePhrase(text: string): string {
     // return joined.replace('_', ' ');
 }
 
-export default function Flashcards({ loadedQuestions }: Props) {
-    const [questions, setQuestions] = useState(loadedQuestions);
+export default function FlashcardsWrapper({ loadedQuestions, practice_mode }: Props) {
+    const [practiceMode, setPracticeMode] = useState(practice_mode);
+    const [currentQuestion, setCurrentQuestion] = useState(loadedQuestions[0]);
 
+    return (
+        <Flashcards loadedQuestions={loadedQuestions} currentQuestion={currentQuestion} setCurrentQuestion={setCurrentQuestion} practiceMode={practiceMode}/>
+    )
+}
+
+function Flashcards({ loadedQuestions, practiceMode, currentQuestion, setCurrentQuestion }: Props) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answer, setAnswer] = useState('');
     const [feedback, setFeedback] = useState(null);
@@ -76,11 +83,20 @@ export default function Flashcards({ loadedQuestions }: Props) {
 
     const [hasTypedSinceFeedback, setHasTypedSinceFeedback] = useState(false);
 
-    const [currentQuestion, setCurrentQuestion] = useState(questions[currentIndex]);
-
     let hasFormality = false;
     let isFormal = false;
     let isVerbose = false;
+
+    if (! currentQuestion) {
+        return (
+        <PageWrapper practiceList={practiceList} setPracticeList={setPracticeList}>
+            <MainContent>
+                <p className="text-lg mb-6 text-gray-800">No available phrases for practice mode <span className="font-bold">"{practiceMode}"</span>.</p>
+            </MainContent>
+        </PageWrapper>
+
+        );
+    }
 
     const phrase = currentQuestion.phrase.toLowerCase();
 
@@ -168,23 +184,25 @@ export default function Flashcards({ loadedQuestions }: Props) {
             router.post(
                 route('flashcards.check'),
                 {
-                    question: currentQuestion, attempts: attempts[currentQuestion.id]
+                    question: currentQuestion,
+                    attempts: attempts[currentQuestion.id],
+                    type: practiceMode,
                 },
                 {
                     preserveState: true,
                     preserveScroll: true,
                     onSuccess: page => {
+                        router.reload({ only: ['loadedQuestions'] });
 
-                        if (page.props.newQuestion) {
+                        if (page.props.loadedQuestions) {
                             setCurrentIndex(0); // optional, if you use index-based state
                             setAnswer('');
                             setFeedback(null);
-                            // replace your current question with the new one
-                            // assuming questions is local state array:
-                            setQuestions(page.props.newQuestion);
-                            setCurrentQuestion(page.props.newQuestion[0]);
+                            setCurrentQuestion(page.props.loadedQuestions[0]);
                         }
-                    }
+                    },
+
+
                     // onError: (errors) => {
 
                     // },
@@ -217,7 +235,8 @@ export default function Flashcards({ loadedQuestions }: Props) {
         setFeedback(null);
         setAnswer('');
         setHasTypedSinceFeedback(false);
-        setCurrentIndex(prev => (prev + 1) % questions.length);
+        // setCurrentIndex(prev => (prev + 1) % questions.length);
+        setCurrentIndex(prev => (prev + 1) % 1)
     };
 
     useEffect(() => {
@@ -233,18 +252,6 @@ export default function Flashcards({ loadedQuestions }: Props) {
         setAnswer('');
         setHasTypedSinceFeedback(false);
     };
-
-    if (! currentQuestion) {
-        return (
-        <PageWrapper practiceList={practiceList} setPracticeList={setPracticeList}>
-            <MainContent>
-                <p className="text-lg mb-6 text-gray-800">No available phrases. Please create one</p>
-            </MainContent>
-
-        </PageWrapper>
-
-        );
-    }
 
     return (
         <PageWrapper practiceList={practiceList} setPracticeList={setPracticeList}>
@@ -296,9 +303,9 @@ export default function Flashcards({ loadedQuestions }: Props) {
                     <AnswerBox feedback={feedback} practiceList={practiceList} setPracticeList={setPracticeList}/>
                 )}
 
-                {feedback && (
+                {/* {feedback && (
                     <Score score={score} total={questions.length}/>
-                )}
+                )} */}
 
                 <CheckButton answer={answer} feedback={feedback} checkAnswer={checkAnswer} nextQuestion={nextQuestion} retryQuestion={retryQuestion} hasTypedSinceFeedback={hasTypedSinceFeedback} isAutoAdvancing={isAutoAdvancing}/>
 

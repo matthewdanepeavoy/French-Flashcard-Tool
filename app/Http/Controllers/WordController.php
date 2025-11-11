@@ -79,6 +79,19 @@ class WordController extends Controller
         return Inertia::render('PhrasesIndex', [
             'phrases' => $sorted,
         ]);
+    }
 
+    public function togglePractice(Request $request) {
+
+        if ($request->model_type == 'word') {
+            $model = Word::find($request->model_id);
+        } else {
+            $model = Phrase::find($request->model_id);
+        }
+
+        $model->to_practice = ! $model->to_practice;
+        $model->save();
+
+        return back();
     }
 }

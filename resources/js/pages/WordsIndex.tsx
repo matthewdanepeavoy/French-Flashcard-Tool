@@ -2,6 +2,7 @@ import React, { useState, useMemo } from "react";
 import { Inertia } from "@inertiajs/inertia";
 import PageWrapper from "./PageWrapper";
 import Badge from "@/components/Badge";
+import { router } from "@inertiajs/react";
 
 export default function WordsIndex({ words }) {
   const [practiceList, setPracticeList] = useState(new Set());
@@ -150,37 +151,7 @@ export default function WordsIndex({ words }) {
                 </thead>
                 <tbody className="divide-y divide-blue-700/60">
                   {col.map((word) => (
-                    <tr
-                      key={word.id}
-                      className="hover:bg-blue-800/50 transition-colors"
-                    >
-                      <td className="px-4 py-2 font-semibold">{word.word}</td>
-                      <td className="px-4 py-2 opacity-80">
-                        {word.definition ?? "—"}
-                      </td>
-                      <td className="px-4 py-2 text-center">
-                        {word.phrases?.length ?? 0}
-                      </td>
-                      <td className="px-4 py-2 text-right space-x-2">
-                          <a
-                            href={`/admin/words/${word.id}/edit`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-md px-3 py-1 rounded shadow"
-                          >
-                          Edit
-                        </a>
-
-                        <button
-                          onClick={() => {
-                            Inertia.get(`/practice?word_id=${word.id}`)
-                          }}
-                          className="bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs px-3 py-1 rounded"
-                        >
-                          Practice
-                        </button>
-                      </td>
-                    </tr>
+                    <TableRow key={word.id} word={word} />
                   ))}
                 </tbody>
               </table>
@@ -190,4 +161,54 @@ export default function WordsIndex({ words }) {
       </div>
     </PageWrapper>
   );
+}
+
+function TableRow({word}) {
+  const [practice, setPractice] = useState(word.to_practice);
+
+  return(
+    <tr
+      key={word.id}
+      className="hover:bg-blue-800/50 transition-colors"
+    >
+      <td className="px-4 py-2 font-semibold">{word.word}</td>
+      <td className="px-4 py-2 opacity-80">
+        {word.definition ?? "—"}
+      </td>
+      <td className="px-4 py-2 text-center">
+        {word.phrases?.length ?? 0}
+      </td>
+      <td className="px-4 py-2 text-right space-x-2">
+          <a
+            href={`/admin/words/${word.id}/edit`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-md px-3 py-1 rounded shadow"
+          >
+          Edit
+        </a>
+
+        <button
+          onClick={() => {
+            router.post(
+                route('toggle.practice'),
+                {
+                    model_id: word.id, model_type: 'word'
+                },
+                {
+                    preserveState: true,
+                    preserveScroll: true,
+                    onSuccess: page => {
+                      setPractice( ! practice);
+                    }
+                }
+            );
+          }}
+          className={`text-white font-semibold text-xs px-3 py-1 rounded ${practice ? 'bg-red-700 hover:bg-red-800': 'bg-blue-700 hover:bg-blue-800'}`}
+        >
+          {practice ? 'Remove': 'Practice'}
+        </button>
+      </td>
+    </tr>
+  )
 }
