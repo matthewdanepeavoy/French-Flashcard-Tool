@@ -84,7 +84,7 @@ export default function Flashcards({ loadedQuestions }: Props) {
 
     const phrase = currentQuestion.phrase.toLowerCase();
 
-    const formalWords = [' vous ', ' vos '];
+    const formalWords = ['vous ', ' vos '];
     const informalWords = [' tu ', "t'", ' ton ', ' te ', ' ta '];
 
     if (formalWords.some(word => phrase.includes(word))) {

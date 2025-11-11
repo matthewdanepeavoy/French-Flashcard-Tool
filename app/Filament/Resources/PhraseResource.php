@@ -58,6 +58,7 @@ class PhraseResource extends Resource
                             ->relationship('tags', titleAttribute: 'name')
                             ->searchable()
                             ->multiple()
+                            ->searchDebounce(10)
                             ->preload(),
                         Forms\Components\TextInput::make('correct_count')
                             ->required()

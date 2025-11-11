@@ -24,11 +24,18 @@ class TagResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+            ->columns(3)
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required(),
                 Select::make('words')
                     ->relationship('words', titleAttribute: 'word')
+                    ->searchable()
+                    ->multiple()
+                    ->preload(),
+
+                Select::make('phrases')
+                    ->relationship('phrases', titleAttribute: 'phrase')
                     ->searchable()
                     ->multiple()
                     ->preload(),

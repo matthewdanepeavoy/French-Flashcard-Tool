@@ -14,6 +14,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Forms\Components\Placeholder;
 use App\Filament\Resources\WordResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -57,6 +58,7 @@ class WordResource extends Resource
                         Forms\Components\TextInput::make('hints'),
                         Select::make('tags')
                             ->relationship('tags', titleAttribute: 'name')
+                            ->searchDebounce(10)
                             ->searchable()
                             ->multiple()
                             ->preload(),
@@ -97,6 +99,42 @@ class WordResource extends Resource
                                 if ($record?->conjugations) return $record?->conjugations[5];
                             }),
 
+                        Placeholder::make('Conditional Present')
+                            ->columnSpanFull()
+                            ->content('Expresses wishes, or make polite requests'),
+
+                        TextInput::make('cp_je')
+                            ->formatStateUsing(function ($record) {
+                                if ($record?->conjugations && isset($record?->conjugations['cp_je']))
+                                    return $record?->conjugations['cp_je'];
+                            }),
+                        TextInput::make('cp_tu')
+                            ->formatStateUsing(function ($record) {
+                                if ($record?->conjugations && isset($record?->conjugations['cp_tu']))
+                                    return $record?->conjugations['cp_tu'];
+                            }),
+                        TextInput::make('cp_il/elle')
+                            ->formatStateUsing(function ($record) {
+                                if ($record?->conjugations && isset($record?->conjugations['cp_il/elle']))
+                                    return $record?->conjugations['cp_il/elle'];
+                            }),
+                        TextInput::make('cp_nous')
+                            ->formatStateUsing(function ($record) {
+                                if ($record?->conjugations && isset($record?->conjugations['cp_nous']))
+                                    return $record?->conjugations['cp_nous'];
+                            }),
+                        TextInput::make('cp_vous')
+                            ->formatStateUsing(function ($record) {
+                                if ($record?->conjugations && isset($record?->conjugations['cp_vous']))
+                                    return $record?->conjugations['cp_vous'];
+                            }),
+
+                        TextInput::make('cp_ils/elles')
+                            ->formatStateUsing(function ($record) {
+                                if ($record?->conjugations && isset($record?->conjugations['cp_ils/elles']))
+                                    return $record?->conjugations['cp_ils/elles'];
+                            }),
+
 
                     ]),
                 // Forms\Components\Textarea::make('conjugations')
@@ -116,11 +154,11 @@ class WordResource extends Resource
                 Tables\Columns\TextColumn::make('word')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('definition')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('type')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('hints')
+                Tables\Columns\TextColumn::make('definition'),
+                Tables\Columns\TextColumn::make('type'),
+                Tables\Columns\TextColumn::make('hints'),
+                Tables\Columns\TextColumn::make('conjugations')
+                    ->limit(100)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()

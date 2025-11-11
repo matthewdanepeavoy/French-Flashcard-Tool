@@ -37,7 +37,8 @@ export default function WordsIndex({ words }) {
                 <p className="text-red-600 bg-blue-300 p-5 rounded-xl">
                         Also add filters here for "Phrase type (ex. question), levels, language", showing correct/incorrect.
                         <br></br>Order by the number of times it has appeared, without being "mastered"
-                        <br></br>Add "TAGS" instead of phrase type / Word Type. This way a phrase (or word) can have multiple tags</p>
+                        <br></br>
+                        <br></br>Group by tags "TAGS" instead of phrase type / Word Type. This way a phrase (or word) can have multiple tags</p>
 
                 {Object.entries(words).map(([type, wordsList]) => (
                     <div key={type}>

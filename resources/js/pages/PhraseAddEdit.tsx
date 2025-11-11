@@ -23,10 +23,12 @@ export default function PhraseAddEdit() {
 
     // Submit Mode 2 word data to backend
     const handleWordsSubmit = (e: React.FormEvent) => {
+        console.log('event now?');
+
         e.preventDefault();
         if (!phraseId) {
-        setErrors({ form: 'No phrase selected.' });
-        return;
+            setErrors({ form: 'No phrase selected.' });
+            return;
         }
         setSavingWords(true);
         setErrors({});
@@ -64,8 +66,6 @@ export default function PhraseAddEdit() {
                     // Optionally reset form or redirect
                 },
                 onError: (errors) => {
-
-
                   setErrors(errors || {});
                   setSavingWords(false);
                 },
