@@ -20,6 +20,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     })->name('dashboard');
 
     Route::get('/words/index', [WordController::class, 'index'])->name('words.index');
+    Route::get('/phrases/index', [WordController::class, 'showPhrases'])->name('phrases.index');
 
     Route::get('/', [FlashcardController::class, 'index'])->name('flashcards.index');
     Route::get('/check-answer', [FlashcardController::class, 'index'])->name('flashcards.check');

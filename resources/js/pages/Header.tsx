@@ -9,6 +9,7 @@ export default function Header({practiceList, setPracticeList}) {
             </a>
 
             <a href="/">Random Practice</a>
+            <a href="/phrases/index">View Phrases</a>
             <a href="/words/index">View Words</a>
             <a href="/phrases">Add phrases</a>
 
