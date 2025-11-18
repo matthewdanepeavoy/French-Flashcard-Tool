@@ -85,14 +85,16 @@ class PhraseResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('english')
                     ->wrap()
-
                     ->searchable(),
-                Tables\Columns\TextColumn::make('correct_count')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('error_count')
-                    ->numeric()
-                    ->sortable(),
+                Tables\Columns\TagsColumn::make('tags.name')
+                    ->color('info')
+                    ->label('Tags'),
+                // Tables\Columns\TextColumn::make('correct_count')
+                //     ->numeric()
+                //     ->sortable(),
+                // Tables\Columns\TextColumn::make('error_count')
+                //     ->numeric()
+                //     ->sortable(),
                 TextColumn::make('words_count') // you can name it whatever you like
                     ->label('Words')
                     ->sortable()
