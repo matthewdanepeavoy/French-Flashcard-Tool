@@ -51,8 +51,6 @@ class WordResource extends Resource
                             // ->required()
                             ->live(),
 
-
-
                         Forms\Components\TextInput::make('feminine_form'),
                         Forms\Components\TextInput::make('contracted_form'),
                         Forms\Components\TextInput::make('hints'),
@@ -155,7 +153,13 @@ class WordResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('definition'),
-                Tables\Columns\TextColumn::make('type'),
+
+
+                Tables\Columns\TagsColumn::make('tags.name')
+                    ->color('info')
+                    ->label('Tags'),
+
+                // Tables\Columns\TextColumn::make('type'),
                 Tables\Columns\TextColumn::make('hints'),
                 Tables\Columns\TextColumn::make('conjugations')
                     ->limit(100)
