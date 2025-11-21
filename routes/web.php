@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\StoryController;
 use App\Models\Tag;
 use App\Models\Word;
 use Inertia\Inertia;
+use App\Models\Story;
 use App\Models\Phrase;
+use App\Models\Sentence;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WordController;
@@ -11,9 +14,16 @@ use App\Http\Controllers\WordFormController;
 use App\Http\Controllers\FlashcardController;
 
 
-// Route::get('/test', function() {
+Route::get('/test', function() {
+    // $story = Story::create([
+    //     'name' => 'My story'
+    // ]);
 
-// });
+    // $sentence = $story->sentences()->create([
+    //     'english' => 'There was  once poo',
+    //     'translated' => 'woooow'
+    // ]);
+});
 
 
 Route::get('/home', function () {
@@ -40,6 +50,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/phrases', [WordFormController::class, 'store'])->name('wordform.store');
     Route::post('/words/check-existence', [WordFormController::class, 'checkExistence'])->name('wordform.check-existence');
     Route::post('/words', [WordFormController::class, 'storeWords'])->name('wordform.words.store');
+
+
+    Route::get('/stories/add', [StoryController::class, 'add'])->name('story.add');
+    Route::post('/stories/post', [StoryController::class, 'post'])->name('story.post');
+
 });
 
 require __DIR__.'/settings.php';

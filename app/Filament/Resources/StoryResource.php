@@ -2,46 +2,37 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\Tag;
+use App\Filament\Resources\StoryResource\Pages;
+use App\Filament\Resources\StoryResource\RelationManagers;
+use App\Models\Story;
 use Filament\Forms;
-use Filament\Tables;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
+use Filament\Tables;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\TagResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TagResource\RelationManagers;
 
-class TagResource extends Resource
+class StoryResource extends Resource
 {
-    protected static ?string $model = Tag::class;
+    protected static ?string $model = Story::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?int $navigationSort = 1;
-
-    protected static ?string $navigationGroup = 'Tags';
-
+    protected static ?int $navigationSort = 2;
+    protected static ?string $navigationGroup = 'Stories';
 
     public static function form(Form $form): Form
     {
         return $form
-            ->columns(3)
             ->schema([
                 Forms\Components\TextInput::make('name')
                     ->required(),
-                Select::make('words')
-                    ->relationship('words', titleAttribute: 'word')
-                    ->searchable()
-                    ->multiple()
-                    ->preload(),
-
-                Select::make('phrases')
-                    ->relationship('phrases', titleAttribute: 'phrase')
-                    ->searchable()
-                    ->multiple()
-                    ->preload(),
+                Forms\Components\TextInput::make('level')
+                    ->required(),
+                Forms\Components\TextInput::make('times_read')
+                    ->required()
+                    ->numeric()
+                    ->default(0),
             ]);
     }
 
@@ -51,6 +42,11 @@ class TagResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('name')
                     ->searchable(),
+                Tables\Columns\TextColumn::make('level')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('times_read')
+                    ->numeric()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -83,9 +79,9 @@ class TagResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTags::route('/'),
-            'create' => Pages\CreateTag::route('/create'),
-            'edit' => Pages\EditTag::route('/{record}/edit'),
+            'index' => Pages\ListStories::route('/'),
+            'create' => Pages\CreateStory::route('/create'),
+            'edit' => Pages\EditStory::route('/{record}/edit'),
         ];
     }
 }

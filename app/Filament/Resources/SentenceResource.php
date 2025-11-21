@@ -2,46 +2,40 @@
 
 namespace App\Filament\Resources;
 
-use App\Models\Tag;
+use App\Filament\Resources\SentenceResource\Pages;
+use App\Filament\Resources\SentenceResource\RelationManagers;
+use App\Models\Sentence;
 use Filament\Forms;
-use Filament\Tables;
 use Filament\Forms\Form;
-use Filament\Tables\Table;
 use Filament\Resources\Resource;
-use Filament\Forms\Components\Select;
+use Filament\Tables;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\TagResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\TagResource\RelationManagers;
 
-class TagResource extends Resource
+class SentenceResource extends Resource
 {
-    protected static ?string $model = Tag::class;
+    protected static ?string $model = Sentence::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    protected static ?int $navigationSort = 1;
-
-    protected static ?string $navigationGroup = 'Tags';
-
+    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Stories';
 
     public static function form(Form $form): Form
     {
         return $form
-            ->columns(3)
             ->schema([
-                Forms\Components\TextInput::make('name')
+                Forms\Components\Select::make('story_id')
+                    ->relationship('story', 'name')
                     ->required(),
-                Select::make('words')
-                    ->relationship('words', titleAttribute: 'word')
-                    ->searchable()
-                    ->multiple()
-                    ->preload(),
-
-                Select::make('phrases')
-                    ->relationship('phrases', titleAttribute: 'phrase')
-                    ->searchable()
-                    ->multiple()
-                    ->preload(),
+                Forms\Components\TextInput::make('order')
+                    ->required()
+                    ->numeric()
+                    ->default(100),
+                Forms\Components\TextInput::make('english')
+                    ->required(),
+                Forms\Components\TextInput::make('translated')
+                    ->required(),
             ]);
     }
 
@@ -49,7 +43,15 @@ class TagResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
+                Tables\Columns\TextColumn::make('story.name')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('order')
+                    ->numeric()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('english')
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('translated')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
@@ -83,9 +85,9 @@ class TagResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListTags::route('/'),
-            'create' => Pages\CreateTag::route('/create'),
-            'edit' => Pages\EditTag::route('/{record}/edit'),
+            'index' => Pages\ListSentences::route('/'),
+            'create' => Pages\CreateSentence::route('/create'),
+            'edit' => Pages\EditSentence::route('/{record}/edit'),
         ];
     }
 }

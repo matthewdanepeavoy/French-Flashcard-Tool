@@ -22,6 +22,7 @@ class PhraseResource extends Resource
 {
     protected static ?string $model = Phrase::class;
     protected static ?int $navigationSort = 1;
+    protected static ?string $navigationGroup = 'Phrases';
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
