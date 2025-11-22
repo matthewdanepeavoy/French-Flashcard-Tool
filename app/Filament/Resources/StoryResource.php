@@ -2,16 +2,17 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\StoryResource\Pages;
-use App\Filament\Resources\StoryResource\RelationManagers;
-use App\Models\Story;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Story;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Filament\Resources\Resource;
 use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\StoryResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\StoryResource\RelationManagers;
+use App\Filament\Resources\StoryResource\RelationManagers\SentencesRelationManager;
 
 class StoryResource extends Resource
 {
@@ -72,7 +73,7 @@ class StoryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            SentencesRelationManager::class
         ];
     }
 

@@ -253,6 +253,14 @@ function Flashcards({ loadedQuestions, practiceMode, currentQuestion, setCurrent
         setHasTypedSinceFeedback(false);
     };
 
+    const date = new Date(currentQuestion.updated_at);
+
+    const formatted = date.toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+    });
+
     return (
         <PageWrapper practiceList={practiceList} setPracticeList={setPracticeList}>
             <MainContent>
@@ -269,6 +277,8 @@ function Flashcards({ loadedQuestions, practiceMode, currentQuestion, setCurrent
                         <span className="italic text-gray-500 ml-3">{ hasFormality ? (isFormal ? '(formal)' : '') : '' }</span>
                         <span className="italic text-gray-500 ml-3">{ isVerbose ? '(verbose)' : ''}</span>
                 </p>
+
+
 
                 {(currentQuestion.hint) ? (
                     <p className="text-md mt-2 mb-6 text-blue-500">
@@ -303,11 +313,19 @@ function Flashcards({ loadedQuestions, practiceMode, currentQuestion, setCurrent
                     <AnswerBox feedback={feedback} practiceList={practiceList} setPracticeList={setPracticeList}/>
                 )}
 
+
                 {/* {feedback && (
                     <Score score={score} total={questions.length}/>
                 )} */}
 
                 <CheckButton answer={answer} feedback={feedback} checkAnswer={checkAnswer} nextQuestion={nextQuestion} retryQuestion={retryQuestion} hasTypedSinceFeedback={hasTypedSinceFeedback} isAutoAdvancing={isAutoAdvancing}/>
+
+
+
+                <p className="text-lg mt-4 text-gray-800">
+                    <strong>Question #</strong> {currentQuestion.id}<br></br>
+                    <strong>Last attempted:</strong> {formatted}
+                </p>
 
                 {/* Statistics section */}
                 <Statistics attempts={attempts} />

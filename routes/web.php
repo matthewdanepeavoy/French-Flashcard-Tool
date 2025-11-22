@@ -30,7 +30,7 @@ Route::get('/home', function () {
     return Inertia::render('welcome');
 })->name('home');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+// Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');
     })->name('dashboard');
@@ -55,7 +55,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/stories/add', [StoryController::class, 'add'])->name('story.add');
     Route::post('/stories/post', [StoryController::class, 'post'])->name('story.post');
 
-});
+// });
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';
