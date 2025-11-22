@@ -147,7 +147,7 @@ class WordResource extends Resource
     {
         return $table
             ->headerActions([
-                // Tables\Actions\CreateAction::make(),  // ✅ Add "Create"
+                Tables\Actions\CreateAction::make(),  // ✅ Add "Create"
                 Tables\Actions\AttachAction::make()
                     ->visible(fn($livewire) => $livewire instanceof RelationManager),  // ✅ Add "Attach" (for BelongsToMany)
             ])

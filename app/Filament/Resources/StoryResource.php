@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use App\Filament\Resources\StoryResource\RelationManagers\WordsRelationManager;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Story;
@@ -73,7 +74,8 @@ class StoryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            SentencesRelationManager::class
+            SentencesRelationManager::class,
+            WordsRelationManager::class,
         ];
     }
 
