@@ -141,7 +141,19 @@ function Flashcards({ loadedQuestions, practiceMode, currentQuestion, setCurrent
                 if (word == data.feminine_form) return true;
                 if (word == data.feminine_form + 's') return true;
 
-                if (data.conjugations && data.conjugations.includes(word)) return true;
+                if (data.conjugations) {
+
+                    if (Array.isArray(data.conjugations) && data.conjugations.includes(word)) return true;
+
+                    if (typeof data.conjugations == 'object') {
+                        let match = false;
+                        Object.entries(data.conjugations).forEach(([key, value]) => {
+                            if (value == word) match = true;
+                        });
+
+                        if (match) return true;
+                    }
+                }
             });
 
             // Find an unmatched user word that matches this expected word
