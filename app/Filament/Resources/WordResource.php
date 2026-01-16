@@ -83,6 +83,7 @@ class WordResource extends Resource
                                 if ($record?->conjugations) return $record?->conjugations[1];
                             }),
                         TextInput::make('il/elle')
+                            ->label('il/elle/on')
                             ->formatStateUsing(function($record) {
                                 if ($record?->conjugations) return $record?->conjugations[2];
                             }),
@@ -115,6 +116,7 @@ class WordResource extends Resource
                                     return $record?->conjugations['cp_tu'];
                             }),
                         TextInput::make('cp_il/elle')
+                            ->label('cp_il/elle/on')
                             ->formatStateUsing(function ($record) {
                                 if ($record?->conjugations && isset($record?->conjugations['cp_il/elle']))
                                     return $record?->conjugations['cp_il/elle'];

@@ -26,7 +26,7 @@ export default function Tooltip({ word, practiceList, setPracticeList, tooltipWo
     const pronouns = [
         'je',
         'tu',
-        'il/elle',
+        'il/elle/on',
         'nous',
         'vous',
         'ils/elles'

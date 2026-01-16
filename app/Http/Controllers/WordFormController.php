@@ -9,6 +9,7 @@ use App\Models\Phrase;
 use App\Enums\Language;
 use App\Enums\WordType;
 use App\Enums\PhraseType;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 
 class WordFormController extends Controller
@@ -22,7 +23,6 @@ class WordFormController extends Controller
 
     public function store(Request $request)
     {
-
         $validated = $request->validate([
             'phrase' => 'required|string|max:255',
             'english' => 'required|string|max:255',
@@ -64,19 +64,38 @@ class WordFormController extends Controller
         foreach($filtered_words as $word) {
             $match = Word::query()
                 ->where(function ($query) use ($word) {
-                    $query->whereRaw('LOWER(word) = ?', [$word])
+                    $query
+                        ->whereRaw('LOWER(word) = ?', [$word])
                         ->orWhereRaw("LOWER(CONCAT(word, 's')) = LOWER(?)", [$word])
                         ->orWhereRaw("LOWER(CONCAT(word, 'x')) = LOWER(?)", [$word]) // ex cadeau / cadeaux
                         ->orWhere('feminine_form', $word)
                         ->orWhereRaw("LOWER(CONCAT(feminine_form, 's')) = LOWER(?)", [$word])
                         ->orWhere('contracted_form', $word)
                         ->orWhere(function ($q) use ($word) {
-                            $q->where('type', WordType::Verb->value)
-                            ->where(function ($jsonQ) use ($word) {
-                                // check all conjugations
-                                $jsonQ->orWhereJsonContains('conjugations', $word)
-                                        ->orWhereJsonContains('conjugations', $word.'s'); // optional plural for conjugation
-                            });
+                            $q
+                                ->where('type', WordType::Verb->value)
+                                ->where(function ($jsonQ) use ($word) {
+                                    // check all conjugations
+                                    $jsonQ->orWhereJsonContains('conjugations', $word)
+                                        ->orWhereJsonContains('conjugations', $word . 's'); // optional plural for conjugation
+
+                                    // ex parlé = spoken
+                                    // look for parler (to speak)
+                                    $infinitive = null;
+                                    if (Str::endsWith($word, 'é')) {
+                                        $infinitive = Str::replaceLast('é', 'er', $word);
+                                    }
+
+                                    if (Str::endsWith($word, 'ée')) {
+                                        $infinitive = Str::replaceLast('ée', 'er', $word);
+                                    }
+
+                                    // ALSO match infinitive in `word` column
+                                    if ($infinitive) {
+                                        $jsonQ
+                                            ->orWhereRaw("LOWER(word) = LOWER(?)", [$infinitive]);
+                                    }
+                                });
                         });
                 })
                 ->first();
